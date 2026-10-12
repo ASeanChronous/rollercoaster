@@ -4,7 +4,7 @@
 |---|---|
 | **Status** | Draft v0.1 |
 | **Owner** | Sean (Traders Edge Group) |
-| **Last updated** | 2026-10-12 |
+| **Last updated** | 2026-10-12 (v0.2: GeoBlackout identified) |
 | **Type** | Consumer web app (responsive), with mobile apps later |
 
 ---
@@ -59,7 +59,7 @@ Today a user checking an outage has to bounce between SpectrumOutage.org, Outage
 | **SpectrumOutage.org** | Spectrum-specific outage reports and areas | Unofficial third-party site. Check its terms and contact the owner about a data agreement. |
 | **OutageNow** | Address-level reports, live map, reporting curves, coverage of 322 networks | Ask about a partner feed. |
 | **FiberFinder.ai** | Provider overview, outage counts, regional reports, category filters; ISP availability by address | Availability data also powers the "backup ISP" feature. |
-| **GeoBlackout USA** | Red-dot outage map, ZIP search, state-by-state status, troubleshooting | **Open question:** confirm the exact product and owner before planning an integration. |
+| **GeoBlackout** ([geoblackout.com/us](https://geoblackout.com/us)) | Crowdsourced **internet and power** outage map with street-level precision, refreshed every minute; red-dot map, ZIP search, state-by-state status, troubleshooting | Founded 2024; covers ~20 countries (US first for us). Sells **GeoBlackout Pro** to telecom operators, which is the natural route to a data license. Its power data also feeds the power overlay (§6.3). |
 
 > **Legal gate (blocking).** None of these sources should be scraped without written permission. Every source needs a license, a partner agreement, or an approved public API before launch. Each source integration lives behind its own adapter and a feature flag so we can turn it off quickly if terms change. Display attribution ("Data from Downdetector, OutageNow, …") wherever the terms require it.
 
@@ -248,7 +248,7 @@ Historical uptime, outage frequency, and mean time to restore for each provider 
 
 ## 14. Open questions
 
-1. What exactly is "GeoBlackout USA" (URL and owner), and does it offer a data feed?
+1. Does GeoBlackout Pro include a data feed or API we can license, and on what terms?
 2. Which source is the "322 networks" figure from? Do we want our launch catalog to match it exactly?
 3. Is power-outage coverage in scope for MVP, or only as a P1 overlay?
 4. Product name and brand. Is "Rollercoaster" final, or a codename?

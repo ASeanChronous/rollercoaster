@@ -1,0 +1,32 @@
+{
+  "name": "rollercoaster",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Outage aggregator: normalized internet, mobile, streaming, gaming, banking and power outage status for the US.",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "leaflet": "^1.9.4",
+    "next": "^15.5.27",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "react-leaflet": "^5.0.0",
+    "topojson-client": "^3.1.0",
+    "us-atlas": "^3.0.1",
+    "zipcodes": "^8.0.0"
+  },
+  "devDependencies": {
+    "@types/leaflet": "^1.9.14",
+    "@types/node": "^22.10.0",
+    "@types/react": "^19.1.0",
+    "@types/react-dom": "^19.1.0",
+    "@types/topojson-client": "^3.1.5",
+    "typescript": "^5.6.3",
+    "vitest": "^2.1.8"
+  }
+}

@@ -30,6 +30,12 @@ export interface StateLevel {
   possible: number;
 }
 
+// Map tiles. The OpenStreetMap default is fine for development but its usage
+// policy forbids heavy traffic; set these at build time for production.
+const TILE_URL = process.env.NEXT_PUBLIC_MAP_TILE_URL || "https://tile.openstreetmap.org/{z}/{x}/{y}.png";
+const TILE_ATTRIBUTION =
+  process.env.NEXT_PUBLIC_MAP_TILE_ATTRIBUTION || '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors';
+
 const FILL: Record<StatusLevel, string> = { ok: "#0ca30c", possible: "#fab219", problems: "#d03b3b" };
 
 const topo = statesTopo as unknown as Topology<{ states: GeometryCollection }>;
@@ -56,8 +62,8 @@ export default function OutageMap({
   return (
     <MapContainer center={center} zoom={zoom} minZoom={3} maxZoom={12} style={{ height: "100%", width: "100%" }} worldCopyJump>
       <TileLayer
-        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
+        attribution={TILE_ATTRIBUTION}
+        url={TILE_URL}
       />
       {mode === "states" && (
         <GeoJSON

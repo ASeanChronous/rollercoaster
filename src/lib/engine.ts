@@ -57,6 +57,8 @@ export class Engine {
   private readonly incidents: IncidentRecord[] = [];
   private readonly open = new Map<string, IncidentRecord>();
   private lastTick = 0;
+  /** When the last tick finished; the health check watches this. */
+  lastTickAt = Date.now();
   private lastLearned = 0;
   private sourceNames = new Map<string, string>();
   private timer?: NodeJS.Timeout;
@@ -110,6 +112,7 @@ export class Engine {
     );
     this.lastTick = now;
     this.recompute(now, true);
+    this.lastTickAt = Date.now();
     this.alerts.evaluate(now, (slug, zip) => this.status(slug, { zip }, now));
     if (now % (30 * MINUTE) < 2 * MINUTE) this.store.prune(now);
     this.bus.emit("tick", now);

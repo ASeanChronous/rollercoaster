@@ -53,12 +53,40 @@ None of the five aggregators publish a public API, and scraping is against their
 
 `GET /api/services?zip=|state=` · `GET /api/services/:slug?zip=|state=` · `POST /api/reports` · `GET /api/map?minutes=60|360|1440&service=&category=` · `GET /api/states` · `GET /api/geo?zip=` or `?lat=&lng=` · `POST|GET|DELETE /api/alerts` · `GET /api/stream` (server-sent events) · `GET /api/sources`
 
+## Deploy (Fly.io)
+
+The app has to run as **one long-running server**. The engine keeps its data in memory and recomputes on a timer, and browsers hold a live connection for updates. Serverless hosts (Vercel, Netlify) won't work. `fly.toml` keeps exactly one machine always on.
+
+1. Install the Fly CLI and sign in:
+   ```bash
+   curl -L https://fly.io/install.sh | sh    # macOS: brew install flyctl
+   fly auth signup                           # or: fly auth login
+   ```
+2. In `fly.toml`, change `app = "rollercoaster-outages"` to a unique name. `primary_region = "dfw"` (Dallas) is a reasonable central-US default.
+3. Create the app and deploy it as a single machine:
+   ```bash
+   fly apps create <your-app-name>
+   fly deploy --ha=false
+   ```
+   `--ha=false` matters: by default Fly starts two machines, and each would show different data. If you ever end up with two, run `fly scale count 1`.
+4. Open it with `fly open`. It's served at `https://<your-app-name>.fly.dev`. Check `/api/health` and `fly logs` if something looks wrong.
+5. **Custom domain (optional):** `fly certs add www.example.com`, then add the DNS records it prints at your domain registrar.
+6. **Map tiles (do this before sharing publicly):** OpenStreetMap's free tile server forbids heavy traffic. Create a free key at a tile provider such as [MapTiler](https://www.maptiler.com/cloud/), restrict it to your domain, uncomment `[build.args]` in `fly.toml` with your key, and run `fly deploy --ha=false` again.
+
+**Cost:** one `shared-cpu-1x` machine with 512 MB, which costs a few dollars a month (see [fly.io/pricing](https://fly.io/pricing)). The app uses about 230 MB.
+
+**Settings** go in `[env]` in `fly.toml`. Secrets, such as data-feed keys once you have agreements, go in with `fly secrets set SOURCE_DOWNDETECTOR_URL=... SOURCE_DOWNDETECTOR_KEY=...`. Keep `DEMO_MODE = "true"` until real feeds are connected, so the "simulated" banner stays up.
+
+**Restarts reset data.** Each deploy or restart wipes reports, alerts and learned baselines (demo mode refills 24 hours of simulated history on boot). Moving storage to a database fixes this, and also allows more than one machine.
+
+To build and run the same image locally: `docker build -t rollercoaster . && docker run -p 3000:3000 rollercoaster`.
+
 ## Not production-ready yet
 
 - **Storage is in memory.** Reports, alerts and learned baselines are lost when the server restarts, and it runs as a single process. The next step is Postgres/PostGIS plus a time-series store, as in PRD §9. The `Store` class is the seam.
 - **Email is logged, not sent.** `ConsoleEmailTransport` needs a real provider (SES, Postmark, etc.) behind the `EmailTransport` interface.
 - **Browser alerts only arrive while a tab is open.** Background Web Push needs a service worker and VAPID keys.
 - **No accounts.** Alert subscriptions are managed with a secret token kept in the browser.
-- **Map tiles** come from the public OpenStreetMap tile server, which doesn't allow heavy production traffic. Switch to a paid or self-hosted tile provider before launch.
+- **Map tiles** default to the public OpenStreetMap tile server, which doesn't allow heavy production traffic. Set `NEXT_PUBLIC_MAP_TILE_URL` (see Deploy) before launch.
 - **Detection thresholds** are starting values. Backtest them against real outage data before launch.
 - P1/P2 features (SMS, ISP-vs-service diagnosis, credit helper, backup ISP suggestions, power/weather overlays, reliability scores, widgets) aren't built yet.

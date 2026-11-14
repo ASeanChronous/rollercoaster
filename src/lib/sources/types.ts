@@ -1,5 +1,8 @@
 import type { Category, SourceSignal } from "../types";
 
+/** Identifies our requests to upstream APIs; some (e.g. weather.gov) require one. */
+export const USER_AGENT = "Rollercoaster outage monitor (+https://github.com/ASeanChronous/rollercoaster)";
+
 /** Environment variables, as a plain map so tests can pass their own. */
 export type Env = Record<string, string | undefined>;
 
@@ -22,6 +25,8 @@ export interface SourceAdapter {
   /** Why the adapter is off, for the sources page. */
   disabledReason?: string;
   poll(now: number): Promise<SourceSignal[]>;
+  /** Partial failures from the last poll (e.g. one of several status pages was down). */
+  lastErrors?: string[];
 }
 
 export function covers(info: SourceInfo, slug: string, category: Category): boolean {

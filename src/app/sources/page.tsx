@@ -77,7 +77,7 @@ export default function SourcesPage() {
               <td><StatusBadge level="problems" /></td>
               <td>
                 Reports are at least {THRESHOLDS.problemsRatio}× normal (and at least {THRESHOLDS.minProblemsReports}), or two or more independent sources agree, or the
-                provider has confirmed an incident.
+                provider has confirmed a major outage. A minor issue the provider confirms shows as possible problems.
               </td>
             </tr>
           </tbody>

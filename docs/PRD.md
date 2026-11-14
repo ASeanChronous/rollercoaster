@@ -4,7 +4,7 @@
 |---|---|
 | **Status** | Draft v0.1 |
 | **Owner** | Sean (Traders Edge Group) |
-| **Last updated** | 2026-10-12 (v0.2: GeoBlackout identified) |
+| **Last updated** | 2026-11-14 (v0.3: free-source licensing reviewed) |
 | **Type** | Consumer web app (responsive), with mobile apps later |
 
 ---
@@ -69,9 +69,9 @@ These reduce dependence on licensed third-party aggregators and improve accuracy
 
 - **Official provider status pages and social accounts:** Comcast/Xfinity, Spectrum, AT&T, Verizon, T-Mobile, Cox, and others. Many expose RSS, JSON, or Statuspage APIs.
 - **Platform status pages:** AWS, Azure, GCP, Cloudflare, PlayStation Network, Xbox Live, Steam, Netflix, and major banks.
-- **Internet measurement:** Cloudflare Radar (traffic anomalies and outage annotations), IODA from Georgia Tech (BGP, active probing, telescope signals), and RIPE Atlas.
+- **Internet measurement:** Cloudflare Radar, IODA from Georgia Tech, and RIPE Atlas. **Licensing caveat (checked 2026-11-14):** Radar API data is CC BY-NC 4.0 (non-commercial only), so it can't be used on an ad- or affiliate-supported site without Cloudflare's permission. IODA publishes no commercial terms ("All Rights Reserved"), and in practice its US events are mostly small hosting networks and short telescope blips rather than consumer ISP outages. Neither is integrated; revisit if permission is granted.
 - **Power:** utility outage feeds and PowerOutage.us (licensed). Power outages often cause the internet outages users are seeing.
-- **Weather and emergencies:** NWS alerts and FEMA/IPAWS, to explain *why* an area is down.
+- **Weather and emergencies:** NWS alerts (US government, public domain; integrated as context on state and service pages) and FEMA/IPAWS, to explain *why* an area is down.
 - **FCC:** the Disaster Information Reporting System (DIRS), when activated, and the Broadband Data Collection for coverage.
 - **Our own users:** crowd reports from Rollercoaster (§6.7).
 
@@ -86,7 +86,7 @@ The core of the product. Every service in every geography gets one normalized st
 |---|---|---|
 | 🟢 | **No problems** | Report volume within the normal range and no official incident |
 | 🟡 | **Possible problems** | Volume ≥ 2× the baseline for that hour and weekday, **or** one source flags an issue |
-| 🔴 | **Problems** | Volume ≥ 5× the baseline, **or** two or more independent sources agree, **or** the provider has confirmed an incident |
+| 🔴 | **Problems** | Volume ≥ 5× the baseline, **or** two or more independent sources agree, **or** the provider has confirmed a major outage (a provider-confirmed minor issue is 🟡) |
 
 - The baseline is computed per service, geography, hour-of-week, and source, so normal evening traffic doesn't trigger alerts.
 - Each status shows a **confidence score** and the **sources behind it** ("3 of 4 sources report issues; Spectrum confirmed at 2:14 PM").
@@ -230,7 +230,7 @@ Historical uptime, outage frequency, and mean time to restore for each provider 
 
 | Phase | Scope |
 |---|---|
-| **0 – Foundations (weeks 0–4)** | Source licensing conversations, service registry, ingestion for official status pages, Cloudflare Radar, and IODA. Legal review. |
+| **0 – Foundations (weeks 0–4)** | Source licensing conversations, service registry, ingestion for official status pages and NWS weather alerts. Legal review. |
 | **1 – MVP (weeks 5–12)** | §6.1–6.8 P0 items, with at least 2 licensed aggregator feeds plus our own reports. Web only. Push and email alerts. |
 | **2 – Fast follow (months 4–6)** | SMS, native apps, ISP-vs-service diagnosis, credit helper, backup suggestions, guided troubleshooting, power and weather overlays. |
 | **3 – Scale (months 7–12)** | Reliability scores, widgets and public API, business tier, predictive alerts. |
@@ -239,7 +239,7 @@ Historical uptime, outage frequency, and mean time to restore for each provider 
 
 | Risk | Mitigation |
 |---|---|
-| Source owners refuse to license data or change their terms | Treat licensed aggregators as one input among several. Invest early in official status pages, measurement data (Radar/IODA), and our own crowd reports. |
+| Source owners refuse to license data or change their terms | Treat licensed aggregators as one input among several. Invest early in official status pages, NWS context and our own crowd reports. Measurement data (Radar/IODA) only with permission. |
 | False alarms damage trust | Baselines, multi-source fusion, confidence scores, and visible "why" explanations. Tune with backtesting. |
 | Brigading or fake reports | Rate limits, device reputation, anomaly detection, and reweighting. Never let crowd reports alone trigger 🔴 for a whole state. |
 | Trademark issues from using provider names and logos | Use names in a factual, descriptive way. Get a legal review of logo use and the "Spectrum outage" SEO pages. |

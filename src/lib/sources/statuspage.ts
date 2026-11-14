@@ -3,7 +3,7 @@
 
 import { SERVICES } from "../services";
 import type { SourceSignal, StatusLevel } from "../types";
-import type { Env, SourceAdapter, SourceInfo } from "./types";
+import { USER_AGENT, type Env, type SourceAdapter, type SourceInfo } from "./types";
 
 export const STATUSPAGE_SOURCE: SourceInfo = {
   id: "official",
@@ -38,20 +38,28 @@ export function mapSummary(slug: string, body: Summary, now: number): SourceSign
 
 export function statuspageAdapter(env: Env = process.env): SourceAdapter {
   const enabled = env.SOURCE_STATUSPAGES_ENABLED === "true";
-  return {
+  const adapter: SourceAdapter = {
     info: STATUSPAGE_SOURCE,
     enabled,
-    disabledReason: enabled ? undefined : "Off by default. Set SOURCE_STATUSPAGES_ENABLED=true.",
+    disabledReason: enabled ? undefined : "Off. Set SOURCE_STATUSPAGES_ENABLED=true.",
     async poll(now) {
       const targets = SERVICES.filter((s) => s.statuspageApi);
       const results = await Promise.allSettled(
         targets.map(async (s) => {
-          const res = await fetch(s.statuspageApi!, { signal: AbortSignal.timeout(8_000) });
+          const res = await fetch(s.statuspageApi!, {
+            headers: { Accept: "application/json", "User-Agent": USER_AGENT },
+            signal: AbortSignal.timeout(8_000),
+          });
           if (!res.ok) throw new Error(`${s.name} status page returned ${res.status}`);
           return mapSummary(s.slug, (await res.json()) as Summary, now);
         }),
       );
+      // One page failing shouldn't drop the others, but failures must still be visible.
+      adapter.lastErrors = results.flatMap((r, i) =>
+        r.status === "rejected" ? [`${targets[i].name}: ${r.reason instanceof Error ? r.reason.message : String(r.reason)}`] : [],
+      );
       return results.flatMap((r) => (r.status === "fulfilled" ? [r.value] : []));
     },
   };
+  return adapter;
 }

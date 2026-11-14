@@ -10,6 +10,9 @@ primary_region = "dfw"
 
 [env]
   DEMO_MODE = "true"
+  # Real data sources that need no agreement (official status pages, NWS weather).
+  SOURCE_STATUSPAGES_ENABLED = "true"
+  WEATHER_ALERTS_ENABLED = "true"
   POLL_INTERVAL_SECONDS = "60"
 
 [http_service]

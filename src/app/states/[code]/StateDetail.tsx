@@ -4,11 +4,14 @@ import Link from "next/link";
 import { useLiveJson } from "@/components/LiveProvider";
 import { ServiceList, sortBySeverity, type Summary } from "@/components/ServiceList";
 import { StatusBadge } from "@/components/StatusBadge";
+import { WeatherAlerts } from "@/components/WeatherAlerts";
 
 export function StateDetail({ code, name }: { code: string; name: string }) {
   const { data, error } = useLiveJson<{ services: Summary[] }>(`/api/services?state=${code}`);
   const issues = sortBySeverity((data?.services ?? []).filter((s) => s.status.level !== "ok"));
-  const worst = issues[0]?.status.level ?? "ok";
+  // A nationwide issue with no reports from this state shouldn't color the state's headline.
+  const local = issues.filter((s) => !s.status.inheritedOnly);
+  const worst = local[0]?.status.level ?? "ok";
 
   return (
     <div className="stack">
@@ -20,14 +23,15 @@ export function StateDetail({ code, name }: { code: string; name: string }) {
         {data && <StatusBadge level={worst} large />}
       </div>
       {error && <div className="error">{error}</div>}
+      <WeatherAlerts query={`state=${code}`} title={`Severe weather in ${name} that can cause outages`} />
       {data && (
         <div className="kpis">
           <div className="kpi">
-            <div className="v">{issues.filter((s) => s.status.level === "problems").length}</div>
+            <div className="v">{local.filter((s) => s.status.level === "problems").length}</div>
             <div className="l">Services with problems</div>
           </div>
           <div className="kpi">
-            <div className="v">{issues.filter((s) => s.status.level === "possible").length}</div>
+            <div className="v">{local.filter((s) => s.status.level === "possible").length}</div>
             <div className="l">Possible problems</div>
           </div>
           <div className="kpi">

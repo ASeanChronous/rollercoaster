@@ -14,6 +14,7 @@ import { statuspageAdapter } from "./sources/statuspage";
 import { covers, type Env, type SourceAdapter, type SourceInfo } from "./sources/types";
 import { scopeKey, Store } from "./store";
 import { HOUR, localHourAndDay, MINUTE, minuteOf } from "./time";
+import { WeatherAlerts } from "./weather";
 import type { CrowdReport, ProblemType, Service, StatusLevel, StatusResult } from "./types";
 
 export interface Scope {
@@ -52,6 +53,8 @@ export class Engine {
   readonly demo: boolean;
   readonly sim?: Simulator;
   readonly adapters: SourceAdapter[];
+  /** Severe weather context from the National Weather Service. */
+  readonly weather: WeatherAlerts;
   private readonly baselines = new BaselineModel();
   private snapshot = new Map<string, StatusResult>();
   private readonly incidents: IncidentRecord[] = [];
@@ -66,6 +69,7 @@ export class Engine {
 
   constructor(env: Env = process.env, now = Date.now()) {
     this.demo = env.DEMO_MODE !== "false";
+    this.weather = new WeatherAlerts(env.WEATHER_ALERTS_ENABLED !== "false");
     this.adapters = [...LICENSED_SOURCES.map((s) => licensedAdapter(s, env)), statuspageAdapter(env)];
     this.bus.setMaxListeners(1000);
     this.sourceNames = new Map(this.activeSources().map((s) => [s.id, s.name]));
@@ -105,8 +109,9 @@ export class Engine {
       this.adapters.filter((a) => a.enabled).map(async (a) => {
         try {
           for (const s of await a.poll(now)) this.store.addSignal(s);
+          for (const error of a.lastErrors ?? []) this.recordPollError(a.info.name, error, now);
         } catch (e) {
-          this.lastPollErrors = [{ source: a.info.name, error: String(e), at: now }, ...this.lastPollErrors].slice(0, 20);
+          this.recordPollError(a.info.name, e instanceof Error ? e.message : String(e), now);
         }
       }),
     );
@@ -116,6 +121,10 @@ export class Engine {
     this.alerts.evaluate(now, (slug, zip) => this.status(slug, { zip }, now));
     if (now % (30 * MINUTE) < 2 * MINUTE) this.store.prune(now);
     this.bus.emit("tick", now);
+  }
+
+  private recordPollError(source: string, error: string, at: number): void {
+    this.lastPollErrors = [{ source, error, at }, ...this.lastPollErrors].slice(0, 20);
   }
 
   /** Accept a report from a user. Returns an error string if rejected. */
@@ -173,8 +182,16 @@ export class Engine {
     return classify({
       now, current, baseline, distinctCells, wideArea,
       votes: this.votes(service, state, scope.zip),
-      sourcesTotal: this.sourcesFor(service).length + (service.statuspageApi || service.officialStatusUrl ? 1 : 0),
+      sourcesTotal: this.sourceCount(service),
     });
+  }
+
+  /** Sources that can report on a service, not counting our own crowd reports. */
+  private sourceCount(service: Service): number {
+    const covered = this.sourcesFor(service);
+    // In demo mode the simulator also plays the provider's own status updates.
+    const simulatedOfficial = this.demo && !covered.some((s) => s.kind === "official") && Boolean(service.officialStatusUrl || service.statuspageApi);
+    return covered.length + (simulatedOfficial ? 1 : 0);
   }
 
   private votes(service: Service, state?: string, zip?: string): SourceVote[] {
@@ -324,7 +341,7 @@ export class Engine {
       cur.count += r.weight;
       places.set(key, cur);
     }
-    const total = [...problems.values()].reduce((a, b) => a + b, 0) || 1;
+    const total = [...problems.values()].reduce((a, b) => a + b, 0);
     return {
       total: Math.round(total),
       problems: [...problems.entries()].map(([type, n]) => ({ type, share: n / total })).sort((a, b) => b.share - a.share),

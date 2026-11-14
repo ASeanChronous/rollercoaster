@@ -6,6 +6,7 @@ import { useLive, useLiveJson } from "@/components/LiveProvider";
 import { ReportButton } from "@/components/ReportButton";
 import { ReportCurve, type CurvePoint } from "@/components/ReportCurve";
 import { StatusBadge } from "@/components/StatusBadge";
+import { WeatherAlerts } from "@/components/WeatherAlerts";
 import { STATES } from "@/lib/geo-states";
 import { CATEGORY_LABEL, PROBLEM_LABEL, type ProblemType, type Service, type StatusLevel, type StatusResult } from "@/lib/types";
 
@@ -95,11 +96,13 @@ export function ServiceDetail({ service, initialZip, initialState }: { service: 
 
       {error && <div className="error">{error}</div>}
 
+      {scope.kind === "zip" && <WeatherAlerts query={`zip=${scope.zip}`} title="Severe weather near you may be affecting service" />}
+
       {s && data && (
         <>
           <div className="card stack">
             {s.officialMessage && (
-              <div className="callout bad">
+              <div className={`callout ${s.level === "problems" ? "bad" : "warn"}`}>
                 <strong>Update from {service.name}:</strong> {s.officialMessage}
                 {s.etaAt && <div className="small">Estimated fix: {new Date(s.etaAt).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })}</div>}
               </div>
@@ -171,9 +174,11 @@ export function ServiceDetail({ service, initialZip, initialState }: { service: 
                   ))}
                 </ul>
               )}
-              <p className="tiny" style={{ marginTop: 8 }}>
-                Based on {data.breakdown.total} reports in the last hour.
-              </p>
+              {data.breakdown.total > 0 && (
+                <p className="tiny" style={{ marginTop: 8 }}>
+                  Based on {data.breakdown.total} report{data.breakdown.total === 1 ? "" : "s"} in the last hour.
+                </p>
+              )}
             </div>
             <div className="card">
               <h2>Most reports from</h2>

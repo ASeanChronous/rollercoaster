@@ -44,8 +44,11 @@ Each tick (60 s by default) the engine polls the enabled sources, adds new crowd
 | Source | Adapter | Status |
 |---|---|---|
 | Downdetector, OutageNow, SpectrumOutage.org, FiberFinder, GeoBlackout | `src/lib/sources/licensed.ts` | Off until a data agreement supplies `SOURCE_<ID>_URL` and `_KEY`. Simulated in demo mode. |
-| Official status pages (Atlassian Statuspage format: Discord, GitHub, Cloudflare, Zoom, Epic Games) | `src/lib/sources/statuspage.ts` | Real HTTP adapter. Turn on with `SOURCE_STATUSPAGES_ENABLED=true`. |
+| Official status pages (Atlassian Statuspage format: Discord, GitHub, Cloudflare, Zoom, Epic Games) | `src/lib/sources/statuspage.ts` | Live. On in `fly.toml` (`SOURCE_STATUSPAGES_ENABLED`). The provider's own severity is followed: minor → possible problems, major → problems. |
+| National Weather Service alerts | `src/lib/weather.ts` | Live (`WEATHER_ALERTS_ENABLED`). Context only: shows warnings likely to cause outages on state and ZIP pages; never changes a status. Public domain. |
 | Rollercoaster user reports | `/api/reports` | Live |
+
+**Checked and not used:** Cloudflare Radar's API data is CC BY-NC 4.0 (non-commercial), so it needs Cloudflare's permission on an ad- or affiliate-supported site. IODA (Georgia Tech) publishes no commercial terms, and its US events are mostly small hosting networks rather than consumer ISPs.
 
 None of the five aggregators publish a public API, and scraping is against their terms. Each licensed feed is mapped into a neutral JSON contract (documented in `licensed.ts`), so adding a partner only means writing a field mapping.
 
@@ -89,4 +92,6 @@ To build and run the same image locally: `docker build -t rollercoaster . && doc
 - **No accounts.** Alert subscriptions are managed with a secret token kept in the browser.
 - **Map tiles** default to the public OpenStreetMap tile server, which doesn't allow heavy production traffic. Set `NEXT_PUBLIC_MAP_TILE_URL` (see Deploy) before launch.
 - **Detection thresholds** are starting values. Backtest them against real outage data before launch.
-- P1/P2 features (SMS, ISP-vs-service diagnosis, credit helper, backup ISP suggestions, power/weather overlays, reliability scores, widgets) aren't built yet.
+- P1/P2 features (SMS, ISP-vs-service diagnosis, credit helper, backup ISP suggestions, power and map overlays, reliability scores, widgets) aren't built yet.
+
+**Testing in a sandbox behind an HTTP proxy:** Node's built-in `fetch` ignores proxy settings unless you set `NODE_USE_ENV_PROXY=1`. Hosts like Fly connect directly and don't need it.

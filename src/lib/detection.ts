@@ -172,8 +172,11 @@ export function classify(input: ClassifyInput): StatusResult {
 
   let level: StatusLevel = crowd;
   if (official) {
-    level = "problems";
-    reasons.unshift(`${official.sourceName} has confirmed an incident.`);
+    // Follow the provider's own severity: a confirmed minor issue is "possible", a major one "problems".
+    level = maxLevel(level, official.level);
+    reasons.unshift(
+      official.level === "problems" ? `${official.sourceName} has confirmed an outage.` : `${official.sourceName} reports a minor issue.`,
+    );
   }
   if (reporting.size >= 2) {
     level = "problems";

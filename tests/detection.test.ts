@@ -74,6 +74,13 @@ describe("classify", () => {
     expect(r.confidence).toBeGreaterThan(0.8);
   });
 
+  it("follows the provider's own severity for a confirmed minor issue", () => {
+    const minor = vote({ sourceName: "Cloudflare (official)", official: true, level: "possible" });
+    expect(classify(input({ votes: [minor] })).level).toBe("possible");
+    // ...but it still escalates when users nearby are reporting problems too.
+    expect(classify(input({ current: 16, votes: [minor] })).level).toBe("problems");
+  });
+
   it("caps a nationwide signal at possible problems until local reports rise", () => {
     const national = [vote({ inherited: true, level: "problems" }), vote({ sourceId: "on", sourceName: "OutageNow", inherited: true, level: "problems" })];
     expect(classify(input({ votes: national })).level).toBe("possible");

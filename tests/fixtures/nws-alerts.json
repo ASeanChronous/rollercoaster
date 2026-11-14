@@ -1,0 +1,317 @@
+{
+ "features": [
+  {
+   "id": "https://api.weather.gov/alerts/urn:oid:2.49.0.1.840.0.e7e94f06cee8ab15164a7f451191744dcac16860.001.1",
+   "properties": {
+    "id": "urn:oid:2.49.0.1.840.0.e7e94f06cee8ab15164a7f451191744dcac16860.001.1",
+    "event": "Flood Warning",
+    "severity": "Severe",
+    "headline": "Flood Warning issued November 14 at 6:40AM MST until November 14 at 9:45AM MST by NWS Salt Lake City UT",
+    "areaDesc": "Kane, UT; Washington, UT",
+    "onset": "2026-11-14T06:40:00-07:00",
+    "ends": "2026-11-14T09:45:00-07:00",
+    "expires": "2026-11-14T09:45:00-07:00",
+    "senderName": "NWS Salt Lake City UT",
+    "geocode": {
+     "SAME": [
+      "049025",
+      "049053"
+     ],
+     "UGC": [
+      "UTC025",
+      "UTC053"
+     ]
+    }
+   }
+  },
+  {
+   "id": "https://api.weather.gov/alerts/urn:oid:2.49.0.1.840.0.252a10680f14089bf57320e6c59055cc94a54296.001.2",
+   "properties": {
+    "id": "urn:oid:2.49.0.1.840.0.252a10680f14089bf57320e6c59055cc94a54296.001.2",
+    "event": "Freeze Warning",
+    "severity": "Severe",
+    "headline": "Freeze Warning issued November 14 at 7:27AM CST until November 15 at 8:00AM CST by NWS Huntsville AL",
+    "areaDesc": "Lauderdale; Colbert; Franklin; Lawrence; Limestone; Madison; Morgan; Marshall; Jackson; DeKalb; Cullman",
+    "onset": "2026-11-15T00:00:00-06:00",
+    "ends": "2026-11-15T08:00:00-06:00",
+    "expires": "2026-11-14T08:30:00-06:00",
+    "senderName": "NWS Huntsville AL",
+    "geocode": {
+     "SAME": [
+      "001077",
+      "001033",
+      "001059",
+      "001079",
+      "001083",
+      "001089",
+      "001103",
+      "001095",
+      "001071",
+      "001049",
+      "001043"
+     ],
+     "UGC": [
+      "ALZ001",
+      "ALZ002",
+      "ALZ003",
+      "ALZ004",
+      "ALZ005",
+      "ALZ006",
+      "ALZ007",
+      "ALZ008",
+      "ALZ009",
+      "ALZ010",
+      "ALZ016"
+     ]
+    }
+   }
+  },
+  {
+   "id": "https://api.weather.gov/alerts/urn:oid:2.49.0.1.840.0.b31da96fac2527549b9784aecc8d61d8c1f85192.002.1",
+   "properties": {
+    "id": "urn:oid:2.49.0.1.840.0.b31da96fac2527549b9784aecc8d61d8c1f85192.002.1",
+    "event": "Blizzard Warning",
+    "severity": "Extreme",
+    "headline": "Blizzard Warning issued November 14 at 4:05AM AKST until November 15 at 7:00AM AKST by NWS Fairbanks AK",
+    "areaDesc": "Central Beaufort Sea Coast; Eastern Beaufort Sea Coast",
+    "onset": "2026-11-14T04:05:00-09:00",
+    "ends": "2026-11-15T07:00:00-09:00",
+    "expires": "2026-11-14T16:00:00-09:00",
+    "senderName": "NWS Fairbanks AK",
+    "geocode": {
+     "SAME": [
+      "002185"
+     ],
+     "UGC": [
+      "AKZ804",
+      "AKZ805"
+     ]
+    }
+   }
+  },
+  {
+   "id": "https://api.weather.gov/alerts/urn:oid:2.49.0.1.840.0.20b1fdbde502e6b1e4b1371b3eae3c6bb7ce10b3.003.1",
+   "properties": {
+    "id": "urn:oid:2.49.0.1.840.0.20b1fdbde502e6b1e4b1371b3eae3c6bb7ce10b3.003.1",
+    "event": "Heavy Freezing Spray Warning",
+    "severity": "Severe",
+    "headline": "Heavy Freezing Spray Warning issued November 14 at 3:45AM AKST until November 15 at 5:00AM AKST by NWS Fairbanks AK",
+    "areaDesc": "Point Franklin to Cape Halkett out to 15 NM",
+    "onset": "2026-11-14T03:00:00-09:00",
+    "ends": "2026-11-15T05:00:00-09:00",
+    "expires": "2026-11-14T18:00:00-09:00",
+    "senderName": "NWS Fairbanks AK",
+    "geocode": {
+     "SAME": [
+      "058813"
+     ],
+     "UGC": [
+      "PKZ813"
+     ]
+    }
+   }
+  },
+  {
+   "id": "https://api.weather.gov/alerts/urn:oid:2.49.0.1.840.0.23e2632c41b8a812adeaffc0dd96c84ff5e8f0c1.002.1",
+   "properties": {
+    "id": "urn:oid:2.49.0.1.840.0.23e2632c41b8a812adeaffc0dd96c84ff5e8f0c1.002.1",
+    "event": "Coastal Flood Warning",
+    "severity": "Severe",
+    "headline": "Coastal Flood Warning issued November 14 at 4:02AM PST until November 14 at 6:00PM PST by NWS Los Angeles/Oxnard CA",
+    "areaDesc": "San Luis Obispo County Beaches; Santa Barbara County Central Coast Beaches",
+    "onset": "2026-11-14T04:02:00-08:00",
+    "ends": "2026-11-14T18:00:00-08:00",
+    "expires": "2026-11-15T03:00:00-08:00",
+    "senderName": "NWS Los Angeles/Oxnard CA",
+    "geocode": {
+     "SAME": [
+      "006079",
+      "006083"
+     ],
+     "UGC": [
+      "CAZ340",
+      "CAZ346"
+     ]
+    }
+   }
+  },
+  {
+   "id": "https://api.weather.gov/alerts/urn:oid:2.49.0.1.840.0.43bcbd7c3a42ef2c27ec484cd3f1913fd5584085.001.1",
+   "properties": {
+    "id": "urn:oid:2.49.0.1.840.0.43bcbd7c3a42ef2c27ec484cd3f1913fd5584085.001.1",
+    "event": "Flood Watch",
+    "severity": "Severe",
+    "headline": "Flood Watch issued November 14 at 3:11AM PST until November 15 at 4:00AM PST by NWS Seattle WA",
+    "areaDesc": "Mason, WA",
+    "onset": "2026-11-14T03:11:00-08:00",
+    "ends": "2026-11-15T04:00:00-08:00",
+    "expires": "2026-11-14T16:00:00-08:00",
+    "senderName": "NWS Seattle WA",
+    "geocode": {
+     "SAME": [
+      "053045"
+     ],
+     "UGC": [
+      "WAC045"
+     ]
+    }
+   }
+  },
+  {
+   "id": "https://api.weather.gov/alerts/urn:oid:2.49.0.1.840.0.5398e3de02a20599947cb8f6462447c920a381bf.001.2",
+   "properties": {
+    "id": "urn:oid:2.49.0.1.840.0.5398e3de02a20599947cb8f6462447c920a381bf.001.2",
+    "event": "Storm Warning",
+    "severity": "Severe",
+    "headline": "Storm Warning issued November 14 at 2:08AM PST until November 15 at 1:00AM PST by NWS Medford OR",
+    "areaDesc": "Coastal waters from Florence to Cape Blanco OR out 10 nm; Coastal waters from Cape Blanco OR to Pt. St. George CA out 10 nm; Waters from Florence to Cape Blanco OR from 10 to 60 nm; Waters from Cape Blanco OR to Pt. St. George CA from 10 to 60 nm",
+    "onset": "2026-11-14T13:00:00-08:00",
+    "ends": "2026-11-15T01:00:00-08:00",
+    "expires": "2026-11-14T16:00:00-08:00",
+    "senderName": "NWS Medford OR",
+    "geocode": {
+     "SAME": [
+      "057350",
+      "057356",
+      "057370",
+      "057376"
+     ],
+     "UGC": [
+      "PZZ350",
+      "PZZ356",
+      "PZZ370",
+      "PZZ376"
+     ]
+    }
+   }
+  },
+  {
+   "id": "https://api.weather.gov/alerts/urn:oid:2.49.0.1.840.0.776dfb6f4443f39de0bca1c7a4b0e39349844852.001.1",
+   "properties": {
+    "id": "urn:oid:2.49.0.1.840.0.776dfb6f4443f39de0bca1c7a4b0e39349844852.001.1",
+    "event": "Winter Storm Warning",
+    "severity": "Severe",
+    "headline": "Winter Storm Warning issued November 14 at 1:33AM PST until November 17 at 4:00AM PST by NWS Hanford CA",
+    "areaDesc": "Yosemite NP outside of the valley; San Joaquin River Canyon; Upper San Joaquin River; Kaiser to Rodgers Ridge; Kings Canyon NP; Grant Grove Area; Sequoia NP",
+    "onset": "2026-11-14T01:33:00-08:00",
+    "ends": "2026-11-17T04:00:00-08:00",
+    "expires": "2026-11-14T11:00:00-08:00",
+    "senderName": "NWS Hanford CA",
+    "geocode": {
+     "SAME": [
+      "006039",
+      "006043",
+      "006109",
+      "006019",
+      "006107"
+     ],
+     "UGC": [
+      "CAZ323",
+      "CAZ325",
+      "CAZ326",
+      "CAZ327",
+      "CAZ328",
+      "CAZ329",
+      "CAZ330"
+     ]
+    }
+   }
+  },
+  {
+   "id": "https://api.weather.gov/alerts/urn:oid:2.49.0.1.840.0.668cd7488a4539f456e1b69b48e6d856050aba11.001.1",
+   "properties": {
+    "id": "urn:oid:2.49.0.1.840.0.668cd7488a4539f456e1b69b48e6d856050aba11.001.1",
+    "event": "High Wind Warning",
+    "severity": "Severe",
+    "headline": "High Wind Warning issued November 14 at 1:15AM PST until November 15 at 1:00AM PST by NWS Medford OR",
+    "areaDesc": "South Central Oregon Coast; Curry County Coast",
+    "onset": "2026-11-14T13:00:00-08:00",
+    "ends": "2026-11-15T01:00:00-08:00",
+    "expires": "2026-11-14T16:00:00-08:00",
+    "senderName": "NWS Medford OR",
+    "geocode": {
+     "SAME": [
+      "041011",
+      "041015",
+      "041019"
+     ],
+     "UGC": [
+      "ORZ021",
+      "ORZ022"
+     ]
+    }
+   }
+  },
+  {
+   "id": "https://api.weather.gov/alerts/urn:oid:2.49.0.1.840.0.8ad31e7f5382b5c75a633da483e0aa5e6c14a742.002.1",
+   "properties": {
+    "id": "urn:oid:2.49.0.1.840.0.8ad31e7f5382b5c75a633da483e0aa5e6c14a742.002.1",
+    "event": "Winter Storm Watch",
+    "severity": "Severe",
+    "headline": "Winter Storm Watch issued November 13 at 9:22PM AKST until November 16 at 3:00AM AKST by NWS Anchorage AK",
+    "areaDesc": "Anchorage; Anchorage Hillside / Eagle River; East Turnagain Arm; Portage; Southern Kachemak Bay; SW Kenai Peninsula; NW Kenai Peninsula; Skilak Lake; Southern Kenai Mtns; Interior Kenai Peninsula; Turnagain Pass",
+    "onset": "2026-11-14T15:00:00-09:00",
+    "ends": "2026-11-16T03:00:00-09:00",
+    "expires": "2026-11-14T05:30:00-09:00",
+    "senderName": "NWS Anchorage AK",
+    "geocode": {
+     "SAME": [
+      "002020",
+      "002122"
+     ],
+     "UGC": [
+      "AKZ701",
+      "AKZ702",
+      "AKZ703",
+      "AKZ704",
+      "AKZ721",
+      "AKZ722",
+      "AKZ723",
+      "AKZ724",
+      "AKZ725",
+      "AKZ726",
+      "AKZ727"
+     ]
+    }
+   }
+  },
+  {
+   "id": "https://api.weather.gov/alerts/urn:oid:2.49.0.1.840.0.701e05731d128000b330f70fee77e2784cfa530b.001.1",
+   "properties": {
+    "id": "urn:oid:2.49.0.1.840.0.701e05731d128000b330f70fee77e2784cfa530b.001.1",
+    "event": "Freeze Watch",
+    "severity": "Severe",
+    "headline": "The Freeze Watch has been replaced. Please see the latest information from NWS Mobile AL on this developing situation.",
+    "areaDesc": "Choctaw; Washington; Clarke; Wilcox; Monroe; Conecuh; Butler; Crenshaw; Wayne",
+    "onset": "2026-11-14T00:00:00-06:00",
+    "ends": "2026-11-14T08:00:00-06:00",
+    "expires": "2026-11-13T09:44:57-06:00",
+    "senderName": "NWS Mobile AL",
+    "geocode": {
+     "SAME": [
+      "001023",
+      "001129",
+      "001025",
+      "001131",
+      "001099",
+      "001035",
+      "001013",
+      "001041",
+      "028153"
+     ],
+     "UGC": [
+      "ALZ051",
+      "ALZ052",
+      "ALZ053",
+      "ALZ054",
+      "ALZ055",
+      "ALZ056",
+      "ALZ057",
+      "ALZ058",
+      "MSZ067"
+     ]
+    }
+   }
+  }
+ ]
+}

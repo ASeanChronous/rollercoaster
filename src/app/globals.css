@@ -244,4 +244,5 @@ dialog.modal .body { padding: 20px; }
 .reasons { margin: 8px 0 0; padding-left: 18px; color: var(--text-2); font-size: 0.9rem; }
 .callout { border-radius: 8px; padding: 10px 12px; background: var(--surface-2); font-size: 0.9rem; }
 .callout.bad { background: var(--bad-bg); color: var(--text); }
+.callout.warn { background: var(--warn-bg); color: var(--text); }
 .empty { padding: 24px 16px; text-align: center; color: var(--text-2); }

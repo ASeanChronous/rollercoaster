@@ -19,7 +19,15 @@ export function scopeFrom(params: URLSearchParams): Scope | string {
   return {};
 }
 
+/**
+ * The visitor's IP, for rate limiting. Only trust what our own proxy sets:
+ * Fly-Client-IP on Fly.io, otherwise the last X-Forwarded-For entry (the one
+ * the proxy in front of us appended). The first entry is whatever the client
+ * sent, so trusting it would let anyone dodge the per-IP limits.
+ */
 export function clientIp(req: Request): string {
-  const fwd = req.headers.get("x-forwarded-for");
-  return fwd?.split(",")[0].trim() || req.headers.get("x-real-ip") || "0.0.0.0";
+  const fly = req.headers.get("fly-client-ip")?.trim();
+  if (fly) return fly;
+  const hops = req.headers.get("x-forwarded-for")?.split(",").map((h) => h.trim()).filter(Boolean);
+  return hops?.at(-1) || req.headers.get("x-real-ip")?.trim() || "0.0.0.0";
 }

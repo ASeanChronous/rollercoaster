@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import Link from "next/link";
+import { DemoBanner } from "@/components/DemoBanner";
 import { LiveProvider } from "@/components/LiveProvider";
 import { Nav } from "@/components/Nav";
 import "./globals.css";
@@ -12,16 +13,11 @@ export const metadata: Metadata = {
 export const viewport: Viewport = { width: "device-width", initialScale: 1 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
-  const demo = process.env.DEMO_MODE !== "false";
   return (
     <html lang="en">
       <body>
         <LiveProvider>
-          {demo && (
-            <div className="demo-banner">
-              Demo mode: outages shown are simulated. <Link href="/sources">How data works</Link>
-            </div>
-          )}
+          <DemoBanner />
           <header className="site-header">
             <div className="container">
               <Link href="/" className="brand">

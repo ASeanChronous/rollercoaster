@@ -141,7 +141,7 @@ const SEEDS: Seed[] = [
     statuspageApi: "https://www.githubstatus.com/api/v2/summary.json", officialStatusUrl: "https://www.githubstatus.com" },
   { slug: "microsoft-365", name: "Microsoft 365", category: "cloud", baseRate: 6, aliases: ["outlook", "teams", "office 365"] },
   { slug: "zoom", name: "Zoom", category: "cloud", baseRate: 4, aliases: [],
-    statuspageApi: "https://status.zoom.us/api/v2/summary.json", officialStatusUrl: "https://status.zoom.us" },
+    statuspageApi: "https://www.zoomstatus.com/api/v2/summary.json", officialStatusUrl: "https://www.zoomstatus.com" },
 
   // Social
   { slug: "instagram", name: "Instagram", category: "social", baseRate: 18, aliases: [] },

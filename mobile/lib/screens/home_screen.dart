@@ -7,6 +7,7 @@ import '../widgets/category_chips.dart';
 import '../widgets/service_card.dart';
 import 'report_screen.dart';
 import 'diagnostics_screen.dart';
+import 'bill_credit_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -78,6 +79,16 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                 ],
               ),
         actions: [
+          IconButton(
+            tooltip: 'ISP Bill Credit Claimer',
+            icon: const Icon(Icons.monetization_on_outlined, color: Color(0xFF10B981)),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const BillCreditScreen()),
+              );
+            },
+          ),
           IconButton(
             tooltip: 'Run Diagnoser',
             icon: const Icon(Icons.troubleshoot_rounded, color: Color(0xFF38BDF8)),

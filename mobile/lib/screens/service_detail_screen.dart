@@ -7,6 +7,7 @@ import '../widgets/status_pill.dart';
 import '../widgets/outage_chart.dart';
 import 'report_screen.dart';
 import 'diagnostics_screen.dart';
+import 'bill_credit_screen.dart';
 
 class ServiceDetailScreen extends StatefulWidget {
   final String slug;
@@ -173,6 +174,10 @@ class _ServiceDetailScreenState extends State<ServiceDetailScreen> {
                         const SizedBox(height: 16),
                         if (_detail!.breakdown.isNotEmpty) ...[
                           _buildBreakdownCard(_detail!.breakdown),
+                          const SizedBox(height: 16),
+                        ],
+                        if (_detail!.category == 'isp') ...[
+                          _buildBillCreditPromoCard(_detail!),
                           const SizedBox(height: 16),
                         ],
                         _buildTroubleshootingCard(_detail!),
@@ -493,6 +498,52 @@ class _ServiceDetailScreenState extends State<ServiceDetailScreen> {
                 side: const BorderSide(color: Color(0xFF334155)),
               );
             }).toList(),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBillCreditPromoCard(ServiceDetail detail) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: const Color(0xFF065F46).withValues(alpha: 0.25),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFF10B981).withValues(alpha: 0.5)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Row(
+            children: [
+              Icon(Icons.monetization_on_rounded, color: Color(0xFF10B981), size: 22),
+              SizedBox(width: 8),
+              Text(
+                'ISP Outage Bill Credit Available',
+                style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.white),
+              ),
+            ],
+          ),
+          const SizedBox(height: 6),
+          Text(
+            'Were you affected by recent downtime with ${detail.name}? Generate a formatted bill credit claim letter to send to customer support.',
+            style: const TextStyle(fontSize: 12.5, color: Colors.white70),
+          ),
+          const SizedBox(height: 12),
+          ElevatedButton.icon(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF10B981),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            ),
+            icon: const Icon(Icons.request_quote_rounded, color: Colors.white, size: 18),
+            label: const Text('Claim Bill Credit', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const BillCreditScreen()),
+              );
+            },
           ),
         ],
       ),

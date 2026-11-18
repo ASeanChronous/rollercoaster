@@ -1,0 +1,118 @@
+import 'package:flutter/material.dart';
+import '../models/service_model.dart';
+import '../services/api_service.dart';
+import '../services/storage_service.dart';
+
+class AppState extends ChangeNotifier {
+  final StorageService storage;
+  late ApiService api;
+
+  String _selectedCategory = 'all';
+  String _searchQuery = '';
+  String? _zip;
+  String? _state;
+  bool _isLoading = false;
+  String? _errorMessage;
+  List<ServiceSummary> _services = [];
+
+  AppState({required this.storage}) {
+    _zip = storage.savedZip;
+    _state = storage.savedState;
+    api = ApiService(
+      baseUrl: storage.baseUrl,
+      deviceId: storage.deviceId,
+    );
+    loadServices();
+  }
+
+  String get selectedCategory => _selectedCategory;
+  String get searchQuery => _searchQuery;
+  String? get zip => _zip;
+  String? get state => _state;
+  bool get isLoading => _isLoading;
+  String? get errorMessage => _errorMessage;
+
+  List<ServiceSummary> get services {
+    var filtered = _services;
+    if (_searchQuery.isNotEmpty) {
+      final q = _searchQuery.toLowerCase();
+      filtered = filtered
+          .where((s) => s.name.toLowerCase().contains(q) || s.slug.toLowerCase().contains(q))
+          .toList();
+    }
+    return filtered;
+  }
+
+  List<ServiceSummary> get outageServices =>
+      services.where((s) => s.level != StatusLevel.ok).toList();
+
+  List<ServiceSummary> get favoriteServices =>
+      services.where((s) => storage.isFavorite(s.slug)).toList();
+
+  void setCategory(String category) {
+    if (_selectedCategory == category) return;
+    _selectedCategory = category;
+    notifyListeners();
+    loadServices();
+  }
+
+  void setSearchQuery(String query) {
+    _searchQuery = query;
+    notifyListeners();
+  }
+
+  Future<void> setZip(String? newZip) async {
+    _zip = newZip;
+    await storage.setSavedZip(newZip);
+    notifyListeners();
+    loadServices();
+  }
+
+  Future<void> setStateCode(String? newState) async {
+    _state = newState;
+    await storage.setSavedState(newState);
+    notifyListeners();
+    loadServices();
+  }
+
+  Future<void> clearLocation() async {
+    _zip = null;
+    _state = null;
+    await storage.setSavedZip(null);
+    await storage.setSavedState(null);
+    notifyListeners();
+    loadServices();
+  }
+
+  Future<void> toggleFavorite(String slug) async {
+    await storage.toggleFavorite(slug);
+    notifyListeners();
+  }
+
+  bool isFavorite(String slug) => storage.isFavorite(slug);
+
+  void updateBaseUrl(String newUrl) {
+    storage.setBaseUrl(newUrl);
+    api = ApiService(baseUrl: newUrl, deviceId: storage.deviceId);
+    loadServices();
+  }
+
+  Future<void> loadServices() async {
+    _isLoading = true;
+    _errorMessage = null;
+    notifyListeners();
+
+    try {
+      _services = await api.getServices(
+        category: _selectedCategory,
+        zip: _zip,
+        state: _state,
+      );
+    } catch (e) {
+      _errorMessage = 'Could not load service status';
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+}

@@ -1,0 +1,166 @@
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../providers/app_state.dart';
+
+class SettingsScreen extends StatefulWidget {
+  const SettingsScreen({super.key});
+
+  @override
+  State<SettingsScreen> createState() => _SettingsScreenState();
+}
+
+class _SettingsScreenState extends State<SettingsScreen> {
+  final TextEditingController _urlController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    final state = context.read<AppState>();
+    _urlController.text = state.storage.baseUrl;
+  }
+
+  @override
+  void dispose() {
+    _urlController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final state = context.watch<AppState>();
+
+    return Scaffold(
+      backgroundColor: const Color(0xFF0F172A),
+      appBar: AppBar(
+        backgroundColor: const Color(0xFF1E293B),
+        elevation: 0,
+        title: const Text('Settings', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
+      ),
+      body: ListView(
+        padding: const EdgeInsets.all(16),
+        children: [
+          const Text(
+            'Backend Connection',
+            style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.grey),
+          ),
+          const SizedBox(height: 8),
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: const Color(0xFF1E293B),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: const Color(0xFF334155)),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'API Base URL',
+                  style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+                ),
+                const SizedBox(height: 4),
+                const Text(
+                  'Points to the Rollercoaster API (e.g. http://localhost:3000 or your Fly.io instance)',
+                  style: TextStyle(fontSize: 12, color: Colors.grey),
+                ),
+                const SizedBox(height: 12),
+                TextField(
+                  controller: _urlController,
+                  style: const TextStyle(color: Colors.white, fontSize: 14),
+                  decoration: InputDecoration(
+                    hintText: 'http://localhost:3000',
+                    filled: true,
+                    fillColor: const Color(0xFF0F172A),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: const BorderSide(color: Color(0xFF334155)),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF2563EB),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  ),
+                  onPressed: () {
+                    final url = _urlController.text.trim();
+                    if (url.isNotEmpty) {
+                      state.updateBaseUrl(url);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('API URL updated')),
+                      );
+                    }
+                  },
+                  child: const Text('Save & Reconnect', style: TextStyle(color: Colors.white)),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 24),
+
+          const Text(
+            'Device & Privacy',
+            style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.grey),
+          ),
+          const SizedBox(height: 8),
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: const Color(0xFF1E293B),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: const Color(0xFF334155)),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text('Anonymous Device Identifier', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
+                const SizedBox(height: 4),
+                Text(
+                  state.storage.deviceId,
+                  style: const TextStyle(fontFamily: 'monospace', fontSize: 12, color: Color(0xFF38BDF8)),
+                ),
+                const SizedBox(height: 6),
+                const Text(
+                  'Used to prevent duplicate report spam while strictly protecting your privacy. No personal data is collected.',
+                  style: TextStyle(fontSize: 12, color: Colors.grey),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 24),
+
+          const Text(
+            'About',
+            style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.grey),
+          ),
+          const SizedBox(height: 8),
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: const Color(0xFF1E293B),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: const Color(0xFF334155)),
+            ),
+            child: const Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Rollercoaster Outage Aggregator for iOS',
+                  style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white, fontSize: 15),
+                ),
+                SizedBox(height: 4),
+                Text('Version 1.0.0 (Flutter / iOS)', style: TextStyle(fontSize: 12, color: Colors.grey)),
+                SizedBox(height: 8),
+                Text(
+                  'Combines crowd reports with licensed outage trackers and official status pages into one unified status model.',
+                  style: TextStyle(fontSize: 12, color: Colors.grey),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}

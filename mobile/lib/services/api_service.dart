@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../models/service_model.dart';
+import '../models/map_models.dart';
 
 class ApiService {
   final String baseUrl;
@@ -121,6 +122,128 @@ class ApiService {
       }
     } catch (_) {}
     return null;
+  }
+
+  Future<({List<MapCell> cells, List<StateOutageSummary> states})> getMapData({
+    int minutes = 60,
+    String? category,
+    String? serviceSlug,
+  }) async {
+    try {
+      final query = <String, dynamic>{'minutes': minutes};
+      if (category != null && category != 'all') query['category'] = category;
+      if (serviceSlug != null && serviceSlug.isNotEmpty) query['service'] = serviceSlug;
+
+      final response = await http
+          .get(_uri('/api/map', query))
+          .timeout(const Duration(seconds: 5));
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body) as Map<String, dynamic>;
+        final rawCells = data['cells'] as List<dynamic>? ?? [];
+        final rawStates = data['states'] as List<dynamic>? ?? [];
+
+        final cells = rawCells.map((c) => MapCell.fromJson(c as Map<String, dynamic>)).toList();
+        final states = rawStates.map((s) => StateOutageSummary.fromJson(s as Map<String, dynamic>)).toList();
+
+        return (cells: cells, states: states);
+      }
+    } catch (_) {}
+
+    return _mockMapData();
+  }
+
+  ({List<MapCell> cells, List<StateOutageSummary> states}) _mockMapData() {
+    final mockCells = [
+      // Dallas - Fort Worth cluster (Major Spectrum outage)
+      MapCell(
+        lat: 32.7767,
+        lng: -96.7970,
+        count: 480,
+        top: [
+          MapTopService(slug: 'spectrum', name: 'Spectrum', count: 420),
+          MapTopService(slug: 'att-internet', name: 'AT&T', count: 60),
+        ],
+      ),
+      MapCell(
+        lat: 32.9483,
+        lng: -96.7299,
+        count: 220,
+        top: [
+          MapTopService(slug: 'spectrum', name: 'Spectrum', count: 190),
+        ],
+      ),
+      // NYC Metro cluster (Verizon issue)
+      MapCell(
+        lat: 40.7128,
+        lng: -74.0060,
+        count: 360,
+        top: [
+          MapTopService(slug: 'verizon', name: 'Verizon', count: 280),
+          MapTopService(slug: 'spectrum', name: 'Spectrum', count: 80),
+        ],
+      ),
+      MapCell(
+        lat: 40.7484,
+        lng: -73.9857,
+        count: 190,
+        top: [
+          MapTopService(slug: 'verizon', name: 'Verizon', count: 160),
+        ],
+      ),
+      // Miami / South Florida
+      MapCell(
+        lat: 25.7617,
+        lng: -80.1918,
+        count: 140,
+        top: [
+          MapTopService(slug: 'xfinity', name: 'Xfinity', count: 95),
+          MapTopService(slug: 'att-internet', name: 'AT&T', count: 45),
+        ],
+      ),
+      // Los Angeles Metro
+      MapCell(
+        lat: 34.0522,
+        lng: -118.2437,
+        count: 95,
+        top: [
+          MapTopService(slug: 'spectrum', name: 'Spectrum', count: 65),
+          MapTopService(slug: 't-mobile', name: 'T-Mobile', count: 30),
+        ],
+      ),
+      // Chicago Metro
+      MapCell(
+        lat: 41.8781,
+        lng: -87.6298,
+        count: 75,
+        top: [
+          MapTopService(slug: 'xfinity', name: 'Xfinity', count: 50),
+          MapTopService(slug: 'att-internet', name: 'AT&T', count: 25),
+        ],
+      ),
+      // Seattle Metro
+      MapCell(
+        lat: 47.6062,
+        lng: -122.3321,
+        count: 60,
+        top: [
+          MapTopService(slug: 'xfinity', name: 'Xfinity', count: 45),
+        ],
+      ),
+    ];
+
+    final mockStates = [
+      StateOutageSummary(state: 'TX', name: 'Texas', fips: '48', level: StatusLevel.problems, problems: 2, possible: 1, lat: 31.054487, lng: -97.563461),
+      StateOutageSummary(state: 'NY', name: 'New York', fips: '36', level: StatusLevel.possible, problems: 1, possible: 2, lat: 42.165726, lng: -74.948051),
+      StateOutageSummary(state: 'FL', name: 'Florida', fips: '12', level: StatusLevel.possible, problems: 1, possible: 1, lat: 27.766279, lng: -81.686783),
+      StateOutageSummary(state: 'CA', name: 'California', fips: '06', level: StatusLevel.ok, problems: 0, possible: 1, lat: 36.116203, lng: -119.681564),
+      StateOutageSummary(state: 'IL', name: 'Illinois', fips: '17', level: StatusLevel.ok, problems: 0, possible: 0, lat: 40.349457, lng: -88.986137),
+      StateOutageSummary(state: 'WA', name: 'Washington', fips: '53', level: StatusLevel.ok, problems: 0, possible: 0, lat: 47.400902, lng: -121.490494),
+      StateOutageSummary(state: 'GA', name: 'Georgia', fips: '13', level: StatusLevel.ok, problems: 0, possible: 1, lat: 33.040619, lng: -83.643074),
+      StateOutageSummary(state: 'OH', name: 'Ohio', fips: '39', level: StatusLevel.ok, problems: 0, possible: 0, lat: 40.388783, lng: -82.764915),
+    ];
+
+    return (cells: mockCells, states: mockStates);
   }
 
   // Fallback demo mock generator

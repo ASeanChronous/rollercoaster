@@ -6,6 +6,7 @@ import '../constants/app_constants.dart';
 import '../widgets/status_pill.dart';
 import '../widgets/outage_chart.dart';
 import 'report_screen.dart';
+import 'diagnostics_screen.dart';
 
 class ServiceDetailScreen extends StatefulWidget {
   final String slug;
@@ -71,6 +72,33 @@ class _ServiceDetailScreenState extends State<ServiceDetailScreen> {
           style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
         ),
         actions: [
+          IconButton(
+            tooltip: 'Run Diagnoser',
+            icon: const Icon(Icons.troubleshoot_rounded, color: Color(0xFF38BDF8)),
+            onPressed: () {
+              if (_detail != null) {
+                final summary = state.services.firstWhere(
+                  (s) => s.slug == widget.slug,
+                  orElse: () => ServiceSummary(
+                    slug: _detail!.slug,
+                    name: _detail!.name,
+                    category: _detail!.category,
+                    level: _detail!.status.level,
+                    current: _detail!.status.current,
+                    baseline: _detail!.status.baseline,
+                    ratio: _detail!.status.ratio,
+                    reasons: _detail!.status.reasons,
+                  ),
+                );
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => DiagnosticsScreen(initialService: summary),
+                  ),
+                );
+              }
+            },
+          ),
           IconButton(
             icon: Icon(
               isFav ? Icons.star_rounded : Icons.star_border_rounded,

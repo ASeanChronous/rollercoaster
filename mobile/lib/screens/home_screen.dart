@@ -6,6 +6,7 @@ import '../widgets/location_bar.dart';
 import '../widgets/category_chips.dart';
 import '../widgets/service_card.dart';
 import 'report_screen.dart';
+import 'diagnostics_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -77,6 +78,16 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                 ],
               ),
         actions: [
+          IconButton(
+            tooltip: 'Run Diagnoser',
+            icon: const Icon(Icons.troubleshoot_rounded, color: Color(0xFF38BDF8)),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const DiagnosticsScreen()),
+              );
+            },
+          ),
           IconButton(
             icon: Icon(
               _isSearching ? Icons.close : Icons.search,
@@ -155,6 +166,50 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const LocationBar(),
+                InkWell(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const DiagnosticsScreen()),
+                    );
+                  },
+                  child: Container(
+                    margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                    decoration: BoxDecoration(
+                      gradient: const LinearGradient(
+                        colors: [Color(0xFF1E3A8A), Color(0xFF1E293B)],
+                        begin: Alignment.centerLeft,
+                        end: Alignment.centerRight,
+                      ),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: const Color(0xFF2563EB).withValues(alpha: 0.5)),
+                    ),
+                    child: const Row(
+                      children: [
+                        Icon(Icons.troubleshoot_rounded, color: Color(0xFF38BDF8), size: 20),
+                        SizedBox(width: 10),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Is It Me or Them? Quick Diagnoser',
+                                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
+                              ),
+                              Text(
+                                'Isolate whether an outage is your Wi-Fi or the remote service',
+                                style: TextStyle(color: Colors.white70, fontSize: 11),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Icon(Icons.arrow_forward_ios_rounded, color: Color(0xFF38BDF8), size: 14),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 6),
                 CategoryChips(
                   selectedCategory: state.selectedCategory,
                   onSelected: (cat) => state.setCategory(cat),

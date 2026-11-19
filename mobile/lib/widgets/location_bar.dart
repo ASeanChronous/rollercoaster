@@ -109,7 +109,38 @@ class LocationBar extends StatelessWidget {
                 'Enter a 5-digit US ZIP code to view outages within 15 miles, or filter by State.',
                 style: TextStyle(fontSize: 13, color: Colors.grey),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 14),
+              if (state.watchlist.isNotEmpty) ...[
+                const Text('Quick Switch from Watchlist:', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.grey)),
+                const SizedBox(height: 8),
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    children: state.watchlist.map((loc) {
+                      final isSelected = state.zip == loc.zip;
+                      return Padding(
+                        padding: const EdgeInsets.only(right: 8),
+                        child: ActionChip(
+                          avatar: Icon(loc.icon, size: 16, color: isSelected ? Colors.white : const Color(0xFF38BDF8)),
+                          label: Text('${loc.label} (${loc.zip})'),
+                          labelStyle: TextStyle(
+                            fontSize: 12,
+                            color: isSelected ? Colors.white : Colors.grey[300],
+                            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                          ),
+                          backgroundColor: isSelected ? const Color(0xFF2563EB) : const Color(0xFF0F172A),
+                          side: BorderSide(color: isSelected ? const Color(0xFF38BDF8) : const Color(0xFF334155)),
+                          onPressed: () {
+                            state.setZip(loc.zip);
+                            Navigator.pop(ctx);
+                          },
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                ),
+                const SizedBox(height: 14),
+              ],
               TextField(
                 controller: zipController,
                 keyboardType: TextInputType.number,

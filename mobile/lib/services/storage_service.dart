@@ -1,5 +1,7 @@
+import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
+import '../models/watchlist_model.dart';
 
 class StorageService {
   static const String _keyBaseUrl = 'api_base_url';
@@ -7,6 +9,7 @@ class StorageService {
   static const String _keyZip = 'saved_zip';
   static const String _keyState = 'saved_state';
   static const String _keyFavorites = 'favorite_services';
+  static const String _keyWatchlist = 'watchlist_locations';
 
   late SharedPreferences _prefs;
 
@@ -54,4 +57,54 @@ class StorageService {
   }
 
   bool isFavorite(String slug) => favorites.contains(slug);
+
+  List<WatchlistLocation> get watchlist {
+    final raw = _prefs.getStringList(_keyWatchlist);
+    if (raw == null || raw.isEmpty) {
+      // Default pre-seeded watchlist
+      return [
+        WatchlistLocation(
+          id: 'home',
+          label: 'Home',
+          zip: '75001',
+          cityState: 'Dallas, TX',
+          iconName: 'home',
+          primaryIspSlug: 'spectrum',
+        ),
+        WatchlistLocation(
+          id: 'office',
+          label: 'Downtown Office',
+          zip: '10001',
+          cityState: 'New York, NY',
+          iconName: 'work',
+          primaryIspSlug: 'verizon',
+        ),
+      ];
+    }
+    return raw
+        .map((str) => WatchlistLocation.fromJson(json.decode(str) as Map<String, dynamic>))
+        .toList();
+  }
+
+  Future<void> saveWatchlistLocation(WatchlistLocation location) async {
+    final list = watchlist;
+    final index = list.indexWhere((l) => l.id == location.id);
+    if (index >= 0) {
+      list[index] = location;
+    } else {
+      list.add(location);
+    }
+    await _saveWatchlistList(list);
+  }
+
+  Future<void> deleteWatchlistLocation(String id) async {
+    final list = watchlist;
+    list.removeWhere((l) => l.id == id);
+    await _saveWatchlistList(list);
+  }
+
+  Future<void> _saveWatchlistList(List<WatchlistLocation> list) async {
+    final strings = list.map((l) => json.encode(l.toJson())).toList();
+    await _prefs.setStringList(_keyWatchlist, strings);
+  }
 }

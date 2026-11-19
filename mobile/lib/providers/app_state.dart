@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../models/service_model.dart';
 import '../services/api_service.dart';
 import '../services/storage_service.dart';
+import '../models/watchlist_model.dart';
 
 class AppState extends ChangeNotifier {
   final StorageService storage;
@@ -90,6 +91,18 @@ class AppState extends ChangeNotifier {
   }
 
   bool isFavorite(String slug) => storage.isFavorite(slug);
+
+  List<WatchlistLocation> get watchlist => storage.watchlist;
+
+  Future<void> saveWatchlistLocation(WatchlistLocation location) async {
+    await storage.saveWatchlistLocation(location);
+    notifyListeners();
+  }
+
+  Future<void> deleteWatchlistLocation(String id) async {
+    await storage.deleteWatchlistLocation(id);
+    notifyListeners();
+  }
 
   void updateBaseUrl(String newUrl) {
     storage.setBaseUrl(newUrl);

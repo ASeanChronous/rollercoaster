@@ -22,6 +22,7 @@ void main() {
 
     expect(find.text('Rollercoaster'), findsOneWidget);
     expect(find.text('Overview'), findsOneWidget);
+    expect(find.text('Watchlist'), findsOneWidget);
     expect(find.text('Quick Report'), findsOneWidget);
   });
 }

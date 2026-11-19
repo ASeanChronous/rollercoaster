@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'providers/app_state.dart';
 import 'services/storage_service.dart';
 import 'screens/home_screen.dart';
+import 'screens/watchlist_screen.dart';
 import 'screens/map_screen.dart';
 import 'screens/report_screen.dart';
 import 'screens/settings_screen.dart';
@@ -72,6 +73,7 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
 
   final List<Widget> _screens = const [
     HomeScreen(),
+    WatchlistScreen(),
     MapScreen(),
     ReportScreen(),
     SettingsScreen(),
@@ -105,6 +107,10 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
             BottomNavigationBarItem(
               icon: Icon(Icons.dashboard_rounded),
               label: 'Overview',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.pin_drop_rounded),
+              label: 'Watchlist',
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.map_rounded),

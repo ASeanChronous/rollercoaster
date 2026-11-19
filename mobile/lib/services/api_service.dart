@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../models/service_model.dart';
 import '../models/map_models.dart';
+import '../models/weather_alert_model.dart';
 
 class ApiService {
   final String baseUrl;
@@ -122,6 +123,64 @@ class ApiService {
       }
     } catch (_) {}
     return null;
+  }
+
+  Future<List<WeatherAlert>> getWeatherAlerts({String? zip, String? state}) async {
+    try {
+      final query = <String, dynamic>{};
+      if (zip != null && zip.isNotEmpty) query['zip'] = zip;
+      if (state != null && state.isNotEmpty) query['state'] = state;
+
+      if (query.isNotEmpty) {
+        final response = await http
+            .get(_uri('/api/weather', query))
+            .timeout(const Duration(seconds: 4));
+        if (response.statusCode == 200) {
+          final data = json.decode(response.body) as Map<String, dynamic>;
+          final list = data['alerts'] as List<dynamic>? ?? [];
+          return list
+              .map((item) => WeatherAlert.fromJson(item as Map<String, dynamic>))
+              .toList();
+        }
+      }
+    } catch (_) {}
+    return _mockWeatherAlerts(zip: zip, state: state);
+  }
+
+  List<WeatherAlert> _mockWeatherAlerts({String? zip, String? state}) {
+    // Contextual alert correlating to the demo seed outages in TX and NY
+    final alerts = <WeatherAlert>[];
+    if (state == 'TX' || zip?.startsWith('75') == true || zip == null) {
+      alerts.add(
+        WeatherAlert(
+          id: 'nws-tx-01',
+          event: 'Severe Thunderstorm & High Wind Warning',
+          severity: 'Severe',
+          headline: 'Severe Thunderstorm Warning in effect for Dallas, Collin, and Tarrant Counties until 8:00 PM',
+          areaDesc: 'Dallas-Fort Worth Metroplex; Dallas County, Tarrant County, Collin County',
+          states: ['TX'],
+          onset: 'Active now',
+          ends: '8:00 PM CST',
+          sender: 'NWS Fort Worth TX',
+        ),
+      );
+    }
+    if (state == 'NY' || zip?.startsWith('10') == true || zip == null) {
+      alerts.add(
+        WeatherAlert(
+          id: 'nws-ny-01',
+          event: 'High Wind Warning',
+          severity: 'Moderate',
+          headline: 'High Wind Warning: Gusts up to 55 mph expected across NYC metro and coastal Long Island',
+          areaDesc: 'New York (Manhattan), Kings (Brooklyn), Queens, Bronx',
+          states: ['NY', 'NJ'],
+          onset: 'Active now',
+          ends: '11:00 PM EST',
+          sender: 'NWS New York NY',
+        ),
+      );
+    }
+    return alerts;
   }
 
   Future<({List<MapCell> cells, List<StateOutageSummary> states})> getMapData({

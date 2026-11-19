@@ -8,6 +8,7 @@ import '../widgets/outage_chart.dart';
 import 'report_screen.dart';
 import 'diagnostics_screen.dart';
 import 'bill_credit_screen.dart';
+import '../widgets/weather_alert_banner.dart';
 
 class ServiceDetailScreen extends StatefulWidget {
   final String slug;
@@ -166,6 +167,10 @@ class _ServiceDetailScreenState extends State<ServiceDetailScreen> {
                       children: [
                         _buildStatusHeader(_detail!),
                         const SizedBox(height: 16),
+                        if (state.weatherAlerts.isNotEmpty && _detail!.status.level != StatusLevel.ok) ...[
+                          ...state.weatherAlerts.map((alert) => WeatherAlertBanner(alert: alert)),
+                          const SizedBox(height: 16),
+                        ],
                         if (_detail!.status.officialMessage != null) ...[
                           _buildOfficialMessageCard(_detail!.status),
                           const SizedBox(height: 16),

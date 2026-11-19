@@ -8,6 +8,7 @@ import '../widgets/service_card.dart';
 import 'report_screen.dart';
 import 'diagnostics_screen.dart';
 import 'bill_credit_screen.dart';
+import '../widgets/weather_alert_banner.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -221,6 +222,10 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                   ),
                 ),
                 const SizedBox(height: 6),
+                if (state.weatherAlerts.isNotEmpty) ...[
+                  ...state.weatherAlerts.map((alert) => WeatherAlertBanner(alert: alert)),
+                  const SizedBox(height: 4),
+                ],
                 CategoryChips(
                   selectedCategory: state.selectedCategory,
                   onSelected: (cat) => state.setCategory(cat),

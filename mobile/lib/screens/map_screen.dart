@@ -4,6 +4,7 @@ import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
 import '../models/map_models.dart';
 import '../models/service_model.dart';
+import '../models/weather_alert_model.dart';
 import '../providers/app_state.dart';
 import '../constants/app_constants.dart';
 import 'service_detail_screen.dart';
@@ -22,9 +23,11 @@ class _MapScreenState extends State<MapScreen> {
   int _selectedMinutes = 60;
   String _selectedCategory = 'all';
   String _mode = 'cells'; // 'cells' or 'states'
+  bool _showWeatherLayer = true;
 
   List<MapCell> _cells = [];
   List<StateOutageSummary> _states = [];
+  List<WeatherAlert> _weatherAlerts = [];
   bool _isLoading = true;
 
   static const LatLng _usCenter = LatLng(39.8283, -98.5795);
@@ -43,10 +46,12 @@ class _MapScreenState extends State<MapScreen> {
         minutes: _selectedMinutes,
         category: _selectedCategory,
       );
+      final weather = await state.api.getWeatherAlerts();
       if (mounted) {
         setState(() {
           _cells = res.cells;
           _states = res.states;
+          _weatherAlerts = weather;
           _isLoading = false;
         });
       }
@@ -65,6 +70,101 @@ class _MapScreenState extends State<MapScreen> {
 
   void _zoomOut() {
     _mapController.move(_mapController.camera.center, _mapController.camera.zoom - 1.0);
+  }
+
+  void _showWeatherDetails(WeatherAlert alert) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: const Color(0xFF1E293B),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) {
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: alert.color.withValues(alpha: 0.2),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Icon(alert.icon, color: alert.color, size: 22),
+                        ),
+                        const SizedBox(width: 12),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              alert.event,
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: alert.color,
+                              ),
+                            ),
+                            Text(
+                              'Severity: ${alert.severity} • ${alert.ends ?? 'Active'}',
+                              style: const TextStyle(fontSize: 12, color: Colors.grey),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.close, color: Colors.grey),
+                      onPressed: () => Navigator.pop(ctx),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF0F172A),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Text(
+                    alert.headline,
+                    style: const TextStyle(color: Colors.white, fontSize: 13, height: 1.4),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  'Impact on Communications:',
+                  style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Colors.grey[300]),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  'Severe winds, lightning, and flooding are primary triggers for power substation trips and aerial fiber cuts. Fiber and cable restoration cannot safely begin until winds subside.',
+                  style: TextStyle(fontSize: 12, color: Colors.grey[400]),
+                ),
+                const SizedBox(height: 16),
+                Row(
+                  children: [
+                    const Icon(Icons.shield_outlined, size: 14, color: Color(0xFF38BDF8)),
+                    const SizedBox(width: 6),
+                    Text(
+                      'Official feed: ${alert.sender}',
+                      style: const TextStyle(fontSize: 11, color: Colors.grey),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
   }
 
   void _showCellDetails(MapCell cell) {
@@ -387,6 +487,39 @@ class _MapScreenState extends State<MapScreen> {
                     );
                   }).toList(),
                 ),
+
+              // Weather Alerts Overlay Layer
+              if (_showWeatherLayer)
+                MarkerLayer(
+                  markers: _weatherAlerts.map((w) {
+                    final LatLng pos = w.states.contains('TX')
+                        ? const LatLng(32.8998, -97.0403)
+                        : const LatLng(40.7831, -73.9712);
+                    return Marker(
+                      point: pos,
+                      width: 42,
+                      height: 42,
+                      child: GestureDetector(
+                        onTap: () => _showWeatherDetails(w),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: w.color,
+                            shape: BoxShape.circle,
+                            border: Border.all(color: Colors.white, width: 2),
+                            boxShadow: [
+                              BoxShadow(
+                                color: w.color.withValues(alpha: 0.8),
+                                blurRadius: 14,
+                                spreadRadius: 3,
+                              ),
+                            ],
+                          ),
+                          child: Icon(w.icon, color: Colors.white, size: 20),
+                        ),
+                      ),
+                    );
+                  }).toList(),
+                ),
             ],
           ),
 
@@ -474,6 +607,23 @@ class _MapScreenState extends State<MapScreen> {
                                 },
                               );
                             }).toList(),
+                          ),
+                          const SizedBox(width: 8),
+                          ActionChip(
+                            avatar: Icon(
+                              _showWeatherLayer ? Icons.thunderstorm_rounded : Icons.thunderstorm_outlined,
+                              size: 13,
+                              color: _showWeatherLayer ? Colors.white : Colors.grey,
+                            ),
+                            label: Text('Storms (${_weatherAlerts.length})'),
+                            labelStyle: TextStyle(
+                              fontSize: 11,
+                              color: _showWeatherLayer ? Colors.white : Colors.grey[400],
+                              fontWeight: _showWeatherLayer ? FontWeight.bold : FontWeight.normal,
+                            ),
+                            backgroundColor: _showWeatherLayer ? const Color(0xFFF97316) : const Color(0xFF0F172A),
+                            side: const BorderSide(color: Color(0xFF334155)),
+                            onPressed: () => setState(() => _showWeatherLayer = !_showWeatherLayer),
                           ),
                           const Spacer(),
                           // Category selector dropdown

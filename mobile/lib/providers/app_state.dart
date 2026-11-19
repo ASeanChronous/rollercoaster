@@ -3,6 +3,7 @@ import '../models/service_model.dart';
 import '../services/api_service.dart';
 import '../services/storage_service.dart';
 import '../models/watchlist_model.dart';
+import '../models/weather_alert_model.dart';
 
 class AppState extends ChangeNotifier {
   final StorageService storage;
@@ -15,6 +16,7 @@ class AppState extends ChangeNotifier {
   bool _isLoading = false;
   String? _errorMessage;
   List<ServiceSummary> _services = [];
+  List<WeatherAlert> _weatherAlerts = [];
 
   AppState({required this.storage}) {
     _zip = storage.savedZip;
@@ -32,6 +34,7 @@ class AppState extends ChangeNotifier {
   String? get state => _state;
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
+  List<WeatherAlert> get weatherAlerts => _weatherAlerts;
 
   List<ServiceSummary> get services {
     var filtered = _services;
@@ -116,11 +119,19 @@ class AppState extends ChangeNotifier {
     notifyListeners();
 
     try {
-      _services = await api.getServices(
-        category: _selectedCategory,
-        zip: _zip,
-        state: _state,
-      );
+      final results = await Future.wait([
+        api.getServices(
+          category: _selectedCategory,
+          zip: _zip,
+          state: _state,
+        ),
+        api.getWeatherAlerts(
+          zip: _zip,
+          state: _state,
+        ),
+      ]);
+      _services = results[0] as List<ServiceSummary>;
+      _weatherAlerts = results[1] as List<WeatherAlert>;
     } catch (e) {
       _errorMessage = 'Could not load service status';
     } finally {

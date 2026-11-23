@@ -8,6 +8,7 @@ import '../widgets/service_card.dart';
 import 'report_screen.dart';
 import 'diagnostics_screen.dart';
 import 'bill_credit_screen.dart';
+import 'emergency_guide_screen.dart';
 import '../widgets/weather_alert_banner.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -80,6 +81,16 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                 ],
               ),
         actions: [
+          IconButton(
+            tooltip: 'Emergency Offline Guide',
+            icon: const Icon(Icons.offline_bolt_outlined, color: Color(0xFFF97316)),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const EmergencyGuideScreen()),
+              );
+            },
+          ),
           IconButton(
             tooltip: 'ISP Bill Credit Claimer',
             icon: const Icon(Icons.monetization_on_outlined, color: Color(0xFF10B981)),
@@ -177,6 +188,37 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                if (state.isOffline)
+                  Container(
+                    margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFEA580C).withValues(alpha: 0.18),
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: const Color(0xFFEA580C).withValues(alpha: 0.6)),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.wifi_off_rounded, color: Color(0xFFFB923C), size: 16),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            'Offline Mode: Showing cached data${state.lastCachedTime != null ? " (${state.lastCachedTime!.hour}:${state.lastCachedTime!.minute.toString().padLeft(2, '0')})" : ""}.',
+                            style: const TextStyle(color: Colors.white, fontSize: 11.5),
+                          ),
+                        ),
+                        InkWell(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (_) => const EmergencyGuideScreen()),
+                            );
+                          },
+                          child: const Text('Guide', style: TextStyle(color: Color(0xFF38BDF8), fontSize: 11.5, fontWeight: FontWeight.bold)),
+                        ),
+                      ],
+                    ),
+                  ),
                 const LocationBar(),
                 InkWell(
                   onTap: () {

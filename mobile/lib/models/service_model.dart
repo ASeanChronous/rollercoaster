@@ -105,6 +105,22 @@ class ServiceSummary {
       inheritedOnly: json['inheritedOnly'] as bool?,
     );
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'slug': slug,
+      'name': name,
+      'category': category,
+      'level': level.name,
+      'current': current,
+      'baseline': baseline,
+      'ratio': ratio,
+      'reasons': reasons,
+      'officialMessage': officialMessage,
+      'etaAt': etaAt,
+      'inheritedOnly': inheritedOnly,
+    };
+  }
 }
 
 class ServiceDetail {
@@ -218,6 +234,22 @@ class StatusResult {
       etaAt: (json['etaAt'] as num?)?.toInt(),
       inheritedOnly: json['inheritedOnly'] as bool?,
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'level': level.name,
+      'confidence': confidence,
+      'current': current,
+      'baseline': baseline,
+      'ratio': ratio,
+      'reasons': reasons,
+      'sourcesReporting': sourcesReporting,
+      'sourcesTotal': sourcesTotal,
+      'officialMessage': officialMessage,
+      'etaAt': etaAt,
+      'inheritedOnly': inheritedOnly,
+    };
   }
 }
 

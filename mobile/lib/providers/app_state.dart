@@ -14,6 +14,7 @@ class AppState extends ChangeNotifier {
   String? _zip;
   String? _state;
   bool _isLoading = false;
+  bool _isOffline = false;
   String? _errorMessage;
   List<ServiceSummary> _services = [];
   List<WeatherAlert> _weatherAlerts = [];
@@ -33,6 +34,8 @@ class AppState extends ChangeNotifier {
   String? get zip => _zip;
   String? get state => _state;
   bool get isLoading => _isLoading;
+  bool get isOffline => _isOffline;
+  DateTime? get lastCachedTime => storage.lastCachedTime;
   String? get errorMessage => _errorMessage;
   List<WeatherAlert> get weatherAlerts => _weatherAlerts;
 
@@ -132,8 +135,16 @@ class AppState extends ChangeNotifier {
       ]);
       _services = results[0] as List<ServiceSummary>;
       _weatherAlerts = results[1] as List<WeatherAlert>;
+      _isOffline = false;
+      await storage.cacheServices(_services);
     } catch (e) {
-      _errorMessage = 'Could not load service status';
+      final cached = storage.getCachedServices();
+      if (cached != null && cached.isNotEmpty) {
+        _services = cached;
+        _isOffline = true;
+      } else {
+        _errorMessage = 'Could not load service status';
+      }
     } finally {
       _isLoading = false;
       notifyListeners();

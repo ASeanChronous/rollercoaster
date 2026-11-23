@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../providers/app_state.dart';
 import '../constants/app_constants.dart';
 
@@ -35,6 +36,19 @@ class _ReportScreenState extends State<ReportScreen> {
     _zipController.dispose();
     _commentController.dispose();
     super.dispose();
+  }
+
+  Future<void> _sendSmsReport() async {
+    final serviceName = _selectedSlug ?? 'Unknown Service';
+    final zip = _zipController.text.trim();
+    final problem = AppConstants.problemLabels[_selectedProblem] ?? _selectedProblem;
+    final comment = _commentController.text.trim();
+
+    final body = 'ROLLERCOASTER REPORT: $serviceName (ZIP: ${zip.isEmpty ? "Unknown" : zip}) - Issue: $problem${comment.isNotEmpty ? " Note: $comment" : ""}';
+    final uri = Uri.parse('sms:?body=${Uri.encodeComponent(body)}');
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri);
+    }
   }
 
   Future<void> _submit() async {
@@ -267,6 +281,24 @@ class _ReportScreenState extends State<ReportScreen> {
                       ),
               ),
             ),
+            const SizedBox(height: 12),
+            SizedBox(
+              width: double.infinity,
+              height: 48,
+              child: OutlinedButton.icon(
+                style: OutlinedButton.styleFrom(
+                  side: const BorderSide(color: Color(0xFF334155)),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                ),
+                icon: const Icon(Icons.sms_outlined, color: Color(0xFF38BDF8), size: 18),
+                label: const Text(
+                  'No Internet? Send Report via SMS',
+                  style: TextStyle(color: Color(0xFF38BDF8), fontSize: 13, fontWeight: FontWeight.bold),
+                ),
+                onPressed: _sendSmsReport,
+              ),
+            ),
+            const SizedBox(height: 24),
           ],
         ),
       ),

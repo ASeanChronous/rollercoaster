@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 import '../models/watchlist_model.dart';
+import '../models/service_model.dart';
 
 class StorageService {
   static const String _keyBaseUrl = 'api_base_url';
@@ -10,6 +11,8 @@ class StorageService {
   static const String _keyState = 'saved_state';
   static const String _keyFavorites = 'favorite_services';
   static const String _keyWatchlist = 'watchlist_locations';
+  static const String _keyCachedServices = 'cached_services_data';
+  static const String _keyCachedTimestamp = 'cached_services_timestamp';
 
   late SharedPreferences _prefs;
 
@@ -106,5 +109,27 @@ class StorageService {
   Future<void> _saveWatchlistList(List<WatchlistLocation> list) async {
     final strings = list.map((l) => json.encode(l.toJson())).toList();
     await _prefs.setStringList(_keyWatchlist, strings);
+  }
+
+  Future<void> cacheServices(List<ServiceSummary> services) async {
+    final list = services.map((s) => s.toJson()).toList();
+    await _prefs.setString(_keyCachedServices, json.encode(list));
+    await _prefs.setInt(_keyCachedTimestamp, DateTime.now().millisecondsSinceEpoch);
+  }
+
+  List<ServiceSummary>? getCachedServices() {
+    final raw = _prefs.getString(_keyCachedServices);
+    if (raw == null || raw.isEmpty) return null;
+    try {
+      final list = json.decode(raw) as List<dynamic>;
+      return list.map((item) => ServiceSummary.fromJson(item as Map<String, dynamic>)).toList();
+    } catch (_) {
+      return null;
+    }
+  }
+
+  DateTime? get lastCachedTime {
+    final ts = _prefs.getInt(_keyCachedTimestamp);
+    return ts != null ? DateTime.fromMillisecondsSinceEpoch(ts) : null;
   }
 }

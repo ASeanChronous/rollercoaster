@@ -11,17 +11,22 @@ class SettingsScreen extends StatefulWidget {
 
 class _SettingsScreenState extends State<SettingsScreen> {
   final TextEditingController _urlController = TextEditingController();
+  final TextEditingController _mapApiKeyController = TextEditingController();
+  late String _selectedMapProvider;
 
   @override
   void initState() {
     super.initState();
     final state = context.read<AppState>();
     _urlController.text = state.storage.baseUrl;
+    _selectedMapProvider = state.storage.mapProvider;
+    _mapApiKeyController.text = state.storage.mapApiKey;
   }
 
   @override
   void dispose() {
     _urlController.dispose();
+    _mapApiKeyController.dispose();
     super.dispose();
   }
 
@@ -93,6 +98,98 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     }
                   },
                   child: const Text('Save & Reconnect', style: TextStyle(color: Colors.white)),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 24),
+
+          const Text(
+            'Outage Map Tiles & API Key',
+            style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.grey),
+          ),
+          const SizedBox(height: 8),
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: const Color(0xFF1E293B),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: const Color(0xFF334155)),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Map Tile Provider',
+                  style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+                ),
+                const SizedBox(height: 4),
+                const Text(
+                  'Choose your tile provider or enter your MapTiler / Mapbox API key.',
+                  style: TextStyle(fontSize: 12, color: Colors.grey),
+                ),
+                const SizedBox(height: 12),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF0F172A),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: const Color(0xFF334155)),
+                  ),
+                  child: DropdownButtonHideUnderline(
+                    child: DropdownButton<String>(
+                      value: _selectedMapProvider,
+                      isExpanded: true,
+                      dropdownColor: const Color(0xFF1E293B),
+                      style: const TextStyle(color: Colors.white, fontSize: 14),
+                      items: const [
+                        DropdownMenuItem(value: 'cartodb', child: Text('CartoDB Dark Matter (Free, No Key Required)')),
+                        DropdownMenuItem(value: 'maptiler', child: Text('MapTiler Cloud (Requires API Key)')),
+                        DropdownMenuItem(value: 'mapbox', child: Text('Mapbox (Requires Access Token)')),
+                        DropdownMenuItem(value: 'osm', child: Text('OpenStreetMap Standard (Free, No Key)')),
+                      ],
+                      onChanged: (val) {
+                        if (val != null) setState(() => _selectedMapProvider = val);
+                      },
+                    ),
+                  ),
+                ),
+                if (_selectedMapProvider == 'maptiler' || _selectedMapProvider == 'mapbox') ...[
+                  const SizedBox(height: 14),
+                  Text(
+                    _selectedMapProvider == 'maptiler' ? 'MapTiler API Key' : 'Mapbox Access Token',
+                    style: const TextStyle(fontWeight: FontWeight.w600, color: Colors.white, fontSize: 13),
+                  ),
+                  const SizedBox(height: 6),
+                  TextField(
+                    controller: _mapApiKeyController,
+                    style: const TextStyle(color: Colors.white, fontSize: 13),
+                    decoration: InputDecoration(
+                      hintText: _selectedMapProvider == 'maptiler' ? 'e.g. 7qX... (from cloud.maptiler.com)' : 'e.g. pk.eyJ1...',
+                      hintStyle: const TextStyle(color: Colors.grey),
+                      filled: true,
+                      fillColor: const Color(0xFF0F172A),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: const BorderSide(color: Color(0xFF334155)),
+                      ),
+                    ),
+                  ),
+                ],
+                const SizedBox(height: 14),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF2563EB),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  ),
+                  onPressed: () {
+                    final key = _mapApiKeyController.text.trim();
+                    state.updateMapSettings(_selectedMapProvider, key);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Map settings & API key saved!')),
+                    );
+                  },
+                  child: const Text('Save Map Settings', style: TextStyle(color: Colors.white)),
                 ),
               ],
             ),

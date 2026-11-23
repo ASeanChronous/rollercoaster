@@ -340,7 +340,7 @@ class _MapScreenState extends State<MapScreen> {
             children: [
               // Dark theme high performance CartoDB tile layer
               TileLayer(
-                urlTemplate: 'https://a.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png',
+                urlTemplate: context.watch<AppState>().mapTileUrl,
                 userAgentPackageName: 'com.rollercoaster.rollercoaster_mobile',
                 tileBuilder: (context, widget, tile) {
                   return ColorFiltered(

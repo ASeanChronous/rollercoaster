@@ -13,6 +13,8 @@ class StorageService {
   static const String _keyWatchlist = 'watchlist_locations';
   static const String _keyCachedServices = 'cached_services_data';
   static const String _keyCachedTimestamp = 'cached_services_timestamp';
+  static const String _keyMapProvider = 'map_tile_provider';
+  static const String _keyMapApiKey = 'map_tile_api_key';
 
   late SharedPreferences _prefs;
 
@@ -29,6 +31,26 @@ class StorageService {
   Future<void> setBaseUrl(String url) async => await _prefs.setString(_keyBaseUrl, url);
 
   String get deviceId => _prefs.getString(_keyDeviceId) ?? 'anonymous-device';
+
+  String get mapProvider => _prefs.getString(_keyMapProvider) ?? 'cartodb';
+  Future<void> setMapProvider(String provider) async => await _prefs.setString(_keyMapProvider, provider);
+
+  String get mapApiKey => _prefs.getString(_keyMapApiKey) ?? '';
+  Future<void> setMapApiKey(String key) async => await _prefs.setString(_keyMapApiKey, key);
+
+  String get mapTileUrl {
+    final key = mapApiKey.trim();
+    final provider = mapProvider;
+
+    if (provider == 'maptiler' && key.isNotEmpty) {
+      return 'https://api.maptiler.com/maps/streets-v2/{z}/{x}/{y}.png?key=$key';
+    } else if (provider == 'mapbox' && key.isNotEmpty) {
+      return 'https://api.mapbox.com/styles/v1/mapbox/dark-v11/tiles/{z}/{x}/{y}?access_token=$key';
+    } else if (provider == 'osm') {
+      return 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
+    }
+    return 'https://a.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png';
+  }
 
   String? get savedZip => _prefs.getString(_keyZip);
   Future<void> setSavedZip(String? zip) async {

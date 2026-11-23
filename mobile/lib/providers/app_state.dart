@@ -110,6 +110,14 @@ class AppState extends ChangeNotifier {
     notifyListeners();
   }
 
+  String get mapTileUrl => storage.mapTileUrl;
+
+  Future<void> updateMapSettings(String provider, String apiKey) async {
+    await storage.setMapProvider(provider);
+    await storage.setMapApiKey(apiKey);
+    notifyListeners();
+  }
+
   void updateBaseUrl(String newUrl) {
     storage.setBaseUrl(newUrl);
     api = ApiService(baseUrl: newUrl, deviceId: storage.deviceId);

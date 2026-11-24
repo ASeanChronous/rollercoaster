@@ -32,7 +32,7 @@ class StorageService {
 
   String get deviceId => _prefs.getString(_keyDeviceId) ?? 'anonymous-device';
 
-  String get mapProvider => _prefs.getString(_keyMapProvider) ?? 'cartodb';
+  String get mapProvider => _prefs.getString(_keyMapProvider) ?? 'esri';
   Future<void> setMapProvider(String provider) async => await _prefs.setString(_keyMapProvider, provider);
 
   String get mapApiKey => _prefs.getString(_keyMapApiKey) ?? '';
@@ -42,14 +42,22 @@ class StorageService {
     final key = mapApiKey.trim();
     final provider = mapProvider;
 
-    if (provider == 'maptiler' && key.isNotEmpty) {
+    if (provider == 'cartodb') {
+      if (key.isNotEmpty) {
+        return 'https://a.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png?api_key=$key';
+      }
+      // If CartoDB is selected but no key is provided, fall back to Esri Dark Gray Canvas
+      // to avoid showing CARTO's "API KEY REQUIRED" watermark!
+      return 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}';
+    } else if (provider == 'maptiler' && key.isNotEmpty) {
       return 'https://api.maptiler.com/maps/streets-v2/{z}/{x}/{y}.png?key=$key';
     } else if (provider == 'mapbox' && key.isNotEmpty) {
       return 'https://api.mapbox.com/styles/v1/mapbox/dark-v11/tiles/{z}/{x}/{y}?access_token=$key';
     } else if (provider == 'osm') {
       return 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
     }
-    return 'https://a.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png';
+    // Default provider: Esri Dark Gray Canvas (Clean, fast, high contrast, 100% free with no watermark or API key)
+    return 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}';
   }
 
   String? get savedZip => _prefs.getString(_keyZip);

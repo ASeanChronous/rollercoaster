@@ -167,6 +167,151 @@ class _MapScreenState extends State<MapScreen> {
     );
   }
 
+  void _showMapSettingsSheet() {
+    final state = context.read<AppState>();
+    String selectedProvider = state.storage.mapProvider;
+    if (selectedProvider == 'cartodb' && state.storage.mapApiKey.isEmpty) {
+      selectedProvider = 'esri';
+    }
+    final keyController = TextEditingController(text: state.storage.mapApiKey);
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: const Color(0xFF1E293B),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) {
+        return StatefulBuilder(
+          builder: (sheetContext, setModalState) {
+            return Padding(
+              padding: EdgeInsets.only(
+                left: 20,
+                right: 20,
+                top: 20,
+                bottom: MediaQuery.of(sheetContext).viewInsets.bottom + 20,
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Row(
+                        children: [
+                          Icon(Icons.layers_rounded, color: Color(0xFF38BDF8), size: 22),
+                          SizedBox(width: 8),
+                          Text(
+                            'Map Basemap & API Key',
+                            style: TextStyle(
+                              fontSize: 17,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ],
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.close, color: Colors.grey),
+                        onPressed: () => Navigator.pop(ctx),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  const Text(
+                    'Esri Dark Gray Canvas is free with zero watermarks. For CARTO, MapTiler, or Mapbox, enter your API key below.',
+                    style: TextStyle(fontSize: 12, color: Colors.grey),
+                  ),
+                  const SizedBox(height: 14),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF0F172A),
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: const Color(0xFF334155)),
+                    ),
+                    child: DropdownButtonHideUnderline(
+                      child: DropdownButton<String>(
+                        value: selectedProvider,
+                        isExpanded: true,
+                        dropdownColor: const Color(0xFF1E293B),
+                        style: const TextStyle(color: Colors.white, fontSize: 14),
+                        items: const [
+                          DropdownMenuItem(value: 'esri', child: Text('Esri Dark Gray Canvas (Default - Free, No Key)')),
+                          DropdownMenuItem(value: 'cartodb', child: Text('CartoDB Dark Matter (Requires Carto Key)')),
+                          DropdownMenuItem(value: 'maptiler', child: Text('MapTiler Cloud (Requires API Key)')),
+                          DropdownMenuItem(value: 'mapbox', child: Text('Mapbox (Requires Access Token)')),
+                          DropdownMenuItem(value: 'osm', child: Text('OpenStreetMap Standard (Free, No Key)')),
+                        ],
+                        onChanged: (val) {
+                          if (val != null) {
+                            setModalState(() => selectedProvider = val);
+                          }
+                        },
+                      ),
+                    ),
+                  ),
+                  if (selectedProvider == 'cartodb' || selectedProvider == 'maptiler' || selectedProvider == 'mapbox') ...[
+                    const SizedBox(height: 14),
+                    Text(
+                      selectedProvider == 'cartodb'
+                          ? 'CartoDB API Key (Free at carto.com/basemaps/apikey)'
+                          : selectedProvider == 'maptiler'
+                              ? 'MapTiler API Key (from cloud.maptiler.com)'
+                              : 'Mapbox Access Token (from mapbox.com)',
+                      style: const TextStyle(fontWeight: FontWeight.w600, color: Colors.white, fontSize: 13),
+                    ),
+                    const SizedBox(height: 6),
+                    TextField(
+                      controller: keyController,
+                      style: const TextStyle(color: Colors.white, fontSize: 13),
+                      decoration: InputDecoration(
+                        hintText: selectedProvider == 'cartodb'
+                            ? 'Paste key from carto.com/basemaps/apikey'
+                            : selectedProvider == 'maptiler'
+                                ? 'e.g. 7qX... (from cloud.maptiler.com)'
+                                : 'e.g. pk.eyJ1...',
+                        hintStyle: const TextStyle(color: Colors.grey),
+                        filled: true,
+                        fillColor: const Color(0xFF0F172A),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: const BorderSide(color: Color(0xFF334155)),
+                        ),
+                      ),
+                    ),
+                  ],
+                  const SizedBox(height: 18),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF2563EB),
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                      ),
+                      onPressed: () {
+                        final key = keyController.text.trim();
+                        state.updateMapSettings(selectedProvider, key);
+                        Navigator.pop(ctx);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Map provider & API key updated!')),
+                        );
+                      },
+                      child: const Text('Save & Apply Tiles', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
   void _showCellDetails(MapCell cell) {
     showModalBottomSheet(
       context: context,
@@ -558,24 +703,42 @@ class _MapScreenState extends State<MapScreen> {
                               ),
                             ],
                           ),
-                          // Mode toggle
-                          SegmentedButton<String>(
-                            segments: const [
-                              ButtonSegment(value: 'cells', icon: Icon(Icons.grain_rounded, size: 16)),
-                              ButtonSegment(value: 'states', icon: Icon(Icons.map_outlined, size: 16)),
-                            ],
-                            selected: {_mode},
-                            onSelectionChanged: (set) {
-                              setState(() => _mode = set.first);
-                            },
-                            style: ButtonStyle(
-                              visualDensity: VisualDensity.compact,
-                              backgroundColor: WidgetStateProperty.resolveWith(
-                                (states) => states.contains(WidgetState.selected)
-                                    ? const Color(0xFF2563EB)
-                                    : const Color(0xFF0F172A),
+                          // Mode toggle & Layers settings
+                          Row(
+                            children: [
+                              SegmentedButton<String>(
+                                segments: const [
+                                  ButtonSegment(value: 'cells', icon: Icon(Icons.grain_rounded, size: 16)),
+                                  ButtonSegment(value: 'states', icon: Icon(Icons.map_outlined, size: 16)),
+                                ],
+                                selected: {_mode},
+                                onSelectionChanged: (set) {
+                                  setState(() => _mode = set.first);
+                                },
+                                style: ButtonStyle(
+                                  visualDensity: VisualDensity.compact,
+                                  backgroundColor: WidgetStateProperty.resolveWith(
+                                    (states) => states.contains(WidgetState.selected)
+                                        ? const Color(0xFF2563EB)
+                                        : const Color(0xFF0F172A),
+                                  ),
+                                ),
                               ),
-                            ),
+                              const SizedBox(width: 8),
+                              InkWell(
+                                onTap: _showMapSettingsSheet,
+                                borderRadius: BorderRadius.circular(8),
+                                child: Container(
+                                  padding: const EdgeInsets.all(7),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFF0F172A),
+                                    borderRadius: BorderRadius.circular(8),
+                                    border: Border.all(color: const Color(0xFF334155)),
+                                  ),
+                                  child: const Icon(Icons.layers_rounded, color: Color(0xFF38BDF8), size: 18),
+                                ),
+                              ),
+                            ],
                           ),
                         ],
                       ),

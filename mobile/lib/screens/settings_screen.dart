@@ -19,7 +19,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
     super.initState();
     final state = context.read<AppState>();
     _urlController.text = state.storage.baseUrl;
-    _selectedMapProvider = state.storage.mapProvider;
+    final savedProvider = state.storage.mapProvider;
+    // If the saved provider was cartodb with no key, default smoothly to esri
+    if (savedProvider == 'cartodb' && state.storage.mapApiKey.isEmpty) {
+      _selectedMapProvider = 'esri';
+    } else {
+      _selectedMapProvider = ['esri', 'cartodb', 'maptiler', 'mapbox', 'osm'].contains(savedProvider)
+          ? savedProvider
+          : 'esri';
+    }
     _mapApiKeyController.text = state.storage.mapApiKey;
   }
 
@@ -143,7 +151,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       dropdownColor: const Color(0xFF1E293B),
                       style: const TextStyle(color: Colors.white, fontSize: 14),
                       items: const [
-                        DropdownMenuItem(value: 'cartodb', child: Text('CartoDB Dark Matter (Free, No Key Required)')),
+                        DropdownMenuItem(value: 'esri', child: Text('Esri Dark Gray Canvas (Default - Free, No Key)')),
+                        DropdownMenuItem(value: 'cartodb', child: Text('CartoDB Dark Matter (Requires Carto API Key)')),
                         DropdownMenuItem(value: 'maptiler', child: Text('MapTiler Cloud (Requires API Key)')),
                         DropdownMenuItem(value: 'mapbox', child: Text('Mapbox (Requires Access Token)')),
                         DropdownMenuItem(value: 'osm', child: Text('OpenStreetMap Standard (Free, No Key)')),
@@ -154,18 +163,36 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ),
                   ),
                 ),
-                if (_selectedMapProvider == 'maptiler' || _selectedMapProvider == 'mapbox') ...[
+                if (_selectedMapProvider == 'cartodb' || _selectedMapProvider == 'maptiler' || _selectedMapProvider == 'mapbox') ...[
                   const SizedBox(height: 14),
-                  Text(
-                    _selectedMapProvider == 'maptiler' ? 'MapTiler API Key' : 'Mapbox Access Token',
-                    style: const TextStyle(fontWeight: FontWeight.w600, color: Colors.white, fontSize: 13),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        _selectedMapProvider == 'cartodb'
+                            ? 'CartoDB API Key'
+                            : _selectedMapProvider == 'maptiler'
+                                ? 'MapTiler API Key'
+                                : 'Mapbox Access Token',
+                        style: const TextStyle(fontWeight: FontWeight.w600, color: Colors.white, fontSize: 13),
+                      ),
+                      if (_selectedMapProvider == 'cartodb')
+                        const Text(
+                          'carto.com/basemaps/apikey',
+                          style: TextStyle(fontSize: 11, color: Color(0xFF38BDF8)),
+                        ),
+                    ],
                   ),
                   const SizedBox(height: 6),
                   TextField(
                     controller: _mapApiKeyController,
                     style: const TextStyle(color: Colors.white, fontSize: 13),
                     decoration: InputDecoration(
-                      hintText: _selectedMapProvider == 'maptiler' ? 'e.g. 7qX... (from cloud.maptiler.com)' : 'e.g. pk.eyJ1...',
+                      hintText: _selectedMapProvider == 'cartodb'
+                          ? 'Paste key from carto.com/basemaps/apikey'
+                          : _selectedMapProvider == 'maptiler'
+                              ? 'e.g. 7qX... (from cloud.maptiler.com)'
+                              : 'e.g. pk.eyJ1...',
                       hintStyle: const TextStyle(color: Colors.grey),
                       filled: true,
                       fillColor: const Color(0xFF0F172A),
@@ -175,6 +202,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       ),
                     ),
                   ),
+                  if (_selectedMapProvider == 'cartodb')
+                    const Padding(
+                      padding: EdgeInsets.only(top: 6),
+                      child: Text(
+                        'CARTO recently began requiring an API key. Free keys can be created in 30s at carto.com/basemaps/apikey. While blank, Esri Dark Canvas is used automatically.',
+                        style: TextStyle(fontSize: 11, color: Colors.grey),
+                      ),
+                    ),
                 ],
                 const SizedBox(height: 14),
                 ElevatedButton(

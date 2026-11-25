@@ -46,30 +46,53 @@ jobs:
           BUILD_PROVISION_PROFILE_BASE64: ${{ secrets.BUILD_PROVISION_PROFILE_BASE64 }}
           KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
         run: |
+          set -e
+
+          # Validate required secrets are present
+          if [ -z "$BUILD_CERTIFICATE_BASE64" ]; then
+            echo "::error::BUILD_CERTIFICATE_BASE64 secret is missing or empty! Please add it in Repo Settings -> Secrets."
+            exit 1
+          fi
+          if [ -z "$P12_PASSWORD" ]; then
+            echo "::error::P12_PASSWORD secret is missing or empty! Please add it in Repo Settings -> Secrets."
+            exit 1
+          fi
+          if [ -z "$BUILD_PROVISION_PROFILE_BASE64" ]; then
+            echo "::error::BUILD_PROVISION_PROFILE_BASE64 secret is missing or empty! Please add it in Repo Settings -> Secrets."
+            exit 1
+          fi
+          if [ -z "$KEYCHAIN_PASSWORD" ]; then
+            echo "::error::KEYCHAIN_PASSWORD secret is missing or empty! Please add it in Repo Settings -> Secrets."
+            exit 1
+          fi
+
           CERTIFICATE_PATH=$RUNNER_TEMP/build_certificate.p12
           PP_PATH=$RUNNER_TEMP/build_pp.mobileprovision
           KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
 
-          # Decode secrets into files
-          echo -n "$BUILD_CERTIFICATE_BASE64" | base64 --decode -o $CERTIFICATE_PATH
-          echo -n "$BUILD_PROVISION_PROFILE_BASE64" | base64 --decode -o $PP_PATH
+          # Decode base64 secrets reliably using python3
+          python3 -c "import os, base64; open(os.environ['CERTIFICATE_PATH'], 'wb').write(base64.b64decode(os.environ['BUILD_CERTIFICATE_BASE64']))"
+          python3 -c "import os, base64; open(os.environ['PP_PATH'], 'wb').write(base64.b64decode(os.environ['BUILD_PROVISION_PROFILE_BASE64']))"
+
+          echo "Certificate size: $(wc -c < $CERTIFICATE_PATH) bytes"
+          echo "Profile size: $(wc -c < $PP_PATH) bytes"
 
           # Create temporary keychain
-          security create-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
-          security set-keychain-settings -lut 21600 $KEYCHAIN_PATH
-          security unlock-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
+          security create-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+          security set-keychain-settings -lut 21600 "$KEYCHAIN_PATH"
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
 
-          # Import certificate to keychain
-          security import $CERTIFICATE_PATH -P "$P12_PASSWORD" -A -t cert -f pkcs12 -k $KEYCHAIN_PATH
-          security set-key-partition-list -S apple-tool:,apple: -s -k "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
+          # Import certificate to temporary keychain
+          security import "$CERTIFICATE_PATH" -P "$P12_PASSWORD" -A -t cert -f pkcs12 -k "$KEYCHAIN_PATH"
+          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH" || true
           
-          # Set keychain search list
-          ORIGINAL_KEYCHAINS=$(security list-keychains -d user | tr -d '"')
-          security list-keychains -d user -s "$KEYCHAIN_PATH" $ORIGINAL_KEYCHAINS
+          # Configure keychain search list
+          security list-keychains -d user -s "$KEYCHAIN_PATH" $(security list-keychains -d user | tr -d '"')
           security default-keychain -s "$KEYCHAIN_PATH"
 
           # Extract UUID and install provisioning profile
-          PROFILE_UUID=$(security cms -D -i "$PP_PATH" | plutil -extract UUID raw - 2>/dev/null || echo "0a347334-94fb-4e5f-a85c-6d0fd5cf4859")
+          PROFILE_UUID=$(security cms -D -i "$PP_PATH" 2>/dev/null | plutil -extract UUID raw - 2>/dev/null || echo "0a347334-94fb-4e5f-a85c-6d0fd5cf4859")
+          echo "Installing profile with UUID: $PROFILE_UUID"
           mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
           cp "$PP_PATH" ~/Library/MobileDevice/Provisioning\ Profiles/${PROFILE_UUID}.mobileprovision
           cp "$PP_PATH" ~/Library/MobileDevice/Provisioning\ Profiles/Rollercoaster_AppStore_Profile.mobileprovision
@@ -97,8 +120,13 @@ jobs:
           APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
           APP_STORE_CONNECT_KEY_BASE64: ${{ secrets.APP_STORE_CONNECT_KEY_BASE64 }}
         run: |
+          if [ -z "$APP_STORE_CONNECT_KEY_ID" ] || [ -z "$APP_STORE_CONNECT_ISSUER_ID" ] || [ -z "$APP_STORE_CONNECT_KEY_BASE64" ]; then
+            echo "::error::One or more App Store Connect API secrets (KEY_ID, ISSUER_ID, KEY_BASE64) are missing!"
+            exit 1
+          fi
+
           mkdir -p ~/.appstoreconnect/private_keys
-          echo -n "$APP_STORE_CONNECT_KEY_BASE64" | base64 --decode -o ~/.appstoreconnect/private_keys/AuthKey_${APP_STORE_CONNECT_KEY_ID}.p8
+          python3 -c "import os, base64; open(os.path.expanduser('~/.appstoreconnect/private_keys/AuthKey_' + os.environ['APP_STORE_CONNECT_KEY_ID'] + '.p8'), 'wb').write(base64.b64decode(os.environ['APP_STORE_CONNECT_KEY_BASE64']))"
 
           xcrun altool --upload-app \
             -f mobile/build/ios/ipa/*.ipa \

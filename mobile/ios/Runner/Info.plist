@@ -68,6 +68,8 @@
 	</array>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Rollercoaster uses your location to show outages within 15 miles of your area.</string>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 	<key>NSAppTransportSecurity</key>
 	<dict>
 		<key>NSAllowsArbitraryLoads</key>

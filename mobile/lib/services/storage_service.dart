@@ -27,7 +27,7 @@ class StorageService {
     }
   }
 
-  String get baseUrl => _prefs.getString(_keyBaseUrl) ?? 'http://10.0.2.2:3000'; // 10.0.2.2 for Android emulator, localhost for iOS simulator / web
+  String get baseUrl => _prefs.getString(_keyBaseUrl) ?? 'https://rollercoaster-outages.fly.dev'; // Production default, customizable in Settings
   Future<void> setBaseUrl(String url) async => await _prefs.setString(_keyBaseUrl, url);
 
   String get deviceId => _prefs.getString(_keyDeviceId) ?? 'anonymous-device';

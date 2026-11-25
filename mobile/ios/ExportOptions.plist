@@ -4,10 +4,17 @@
 <dict>
 	<key>method</key>
 	<string>app-store</string>
+	<key>teamID</key>
+	<string>J99GL55Z8M</string>
 	<key>destination</key>
 	<string>export</string>
 	<key>signingStyle</key>
-	<string>automatic</string>
+	<string>manual</string>
+	<key>provisioningProfiles</key>
+	<dict>
+		<key>com.rollercoaster.rollercoasterMobile</key>
+		<string>Rollercoaster AppStore Profile</string>
+	</dict>
 	<key>stripSwiftSymbols</key>
 	<true/>
 	<key>uploadBitcode</key>

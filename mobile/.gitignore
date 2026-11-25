@@ -46,3 +46,13 @@ app.*.map.json
 
 # Widget Preview related
 .widget_preview/
+
+# iOS signing keys and certificates (Never commit to git)
+ios-signing/
+*.p12
+*.key
+*.cer
+*.mobileprovision
+*.p8
+*.csr
+*.certSigningRequest

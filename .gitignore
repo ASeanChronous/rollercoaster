@@ -5,3 +5,13 @@ out/
 next-env.d.ts
 .env*.local
 .env
+
+# iOS signing keys and certificates (Never commit to git)
+ios-signing/
+*.p12
+*.key
+*.cer
+*.mobileprovision
+*.p8
+*.csr
+*.certSigningRequest
